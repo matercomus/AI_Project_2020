@@ -90,10 +90,6 @@ def call_player(player, state, result):
     result['move'] = move
 
 
-def other(p):
-    return 2 if p == 1 else 1
-
-
 def pr(string, verbose):
     """
     Print the given message if verbose is true, otherwise ignore.
@@ -115,6 +111,10 @@ def check(
     :param player:
     """
     # TODO: CHANGE EVERYTHING
+    # ONLY CHECKING STRUCTURE OF MOVE, NOT CONTENT
+
+
+    
     # if not move is None:
     #     if not type(move) is tuple:
     #         raise RuntimeError(

@@ -60,6 +60,9 @@ class Deck:
 	def getCardState(self):
 		return self.__cardState
 
+	def setCard(self, index, state):
+		self.__cardState[index] = state
+
 
 	@staticmethod
 	def generate():
@@ -71,7 +74,7 @@ class Deck:
 
 		# Three separate for loops assign a state to the cards in the
 		# shuffled deck depending on their position. The indices of the
-		# stock cards are pushed onto the stock stack (lol) to save their order.
+		# stock cards are pushed onto the stock stack to save their order.
 		for i in range(10):
 			cardState[shuffledCards[i]] = "Stock"
 			stock.append(shuffledCards[i])
@@ -85,3 +88,7 @@ class Deck:
 		trump = Deck.getSuit(shuffledCards[0])
 
 		return Deck(cardState, stock, trump)
+
+	def clone(self):
+		deck = Deck(list(self.__cardState), list(self.__stock), self.__trump)
+
