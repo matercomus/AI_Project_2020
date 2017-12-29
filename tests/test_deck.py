@@ -14,3 +14,4 @@ class TestDeck(TestCase):
 
         player2 = d.getCardState().count("P2Hand")
         self.assertEqual(player2, 5,"The value should be 5")
+

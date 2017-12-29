@@ -91,4 +91,5 @@ class Deck:
 
 	def clone(self):
 		deck = Deck(list(self.__cardState), list(self.__stock), self.__trump)
+		return deck
 
