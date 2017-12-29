@@ -1,7 +1,6 @@
 from unittest import TestCase
 from api import Deck
 
-
 class TestDeck(TestCase):
 
     def test_generate(self):
