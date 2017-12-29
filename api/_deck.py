@@ -57,7 +57,7 @@ class Deck:
 	def getSuit(index):
 		return Deck.__SUITS[int(index/5)]
 
-	def getState(self):
+	def getCardState(self):
 		return self.__cardState
 
 
