@@ -9,7 +9,7 @@ class Deck:
 	__SUITS = ["C", "D", "H", "S"]
 
 	# A list of length 20 representing all cards and their states
-	__cardState = None # type: list[str]
+	__card_state = None # type: list[str]
 
 	#We use the following index representations for cards:
 
@@ -21,6 +21,11 @@ class Deck:
 	# 3, 8, 13, 18 - Queens
 	# 4, 9, 14, 19 - Jacks
 
+	# List that holds cards which are played at any one time.
+	# Can contain two Nones, one None and an int, or two ints.
+	# The ints represent the index of the played cards according to the scheme above.
+	__trick = [None, None] # type: list[int], list[None]
+
 	# A variable length list of card indexes representing the
 	# cards currently in stock, and more importantly, their order.
 	# First index in this list is always the trump card, last index
@@ -31,65 +36,75 @@ class Deck:
 	__trump = None # type: String
 
 	def __init__(self,
-				cardState,	# type: list[str]
+				card_state,	# type: list[str]
+				trick, 		# type: list[int]
 				stock,		# type: list[int]
 				trump 		# type: str
 				):
 		"""
-		:param cardState: list of current card states
+		:param card_state: list of current card states
 		:param stock: list of indexes of cards in stock
 		:param trump: {C,D,H,S}
 		"""
 
-		self.__cardState = cardState
-		self.__stock 	 = stock
-		self.__trump 	 = trump
+		self.__card_state = card_state
+		self.__trick	 = trick
+		self.__stock	 = stock
+		self.__trump	 = trump
 
 
 	# Computes the rank of a given card index, following the ordering given above.
 	@staticmethod
-	def getRank(index):
+	def get_rank(index):
 		return Deck.__RANKS[index % 5]
 		
 
 	# Computes the suit of a given card index, following the ordering given above.
 	@staticmethod
-	def getSuit(index):
+	def get_suit(index):
 		return Deck.__SUITS[int(index/5)]
 
-	def getCardState(self):
-		return self.__cardState
+	def get_card_state(self):
+		return self.__card_state
 
-	def setCard(self, index, state):
-		self.__cardState[index] = state
+	def set_card(self, index, state):
+		self.__card_state[index] = state
+
+	def get_trick(self):
+		return self.__trick
+
+	def set_trick(self, player, card):
+		self.__trick[player]
+
+	def clear_trick(self):
+		self.__trick = [None, None]
 
 
 	@staticmethod
 	def generate():
 
-		shuffledCards = random.permutation(range(20))
+		shuffled_cards = random.permutation(range(20))
 
-		cardState = [0]*20
+		card_state = [0]*20
 		stock = [] # Can be thought of as a stack data structure.
 
 		# Three separate for loops assign a state to the cards in the
 		# shuffled deck depending on their position. The indices of the
 		# stock cards are pushed onto the stock stack to save their order.
 		for i in range(10):
-			cardState[shuffledCards[i]] = "Stock"
-			stock.append(shuffledCards[i])
+			card_state[shuffled_cards[i]] = "Stock"
+			stock.append(shuffled_cards[i])
 
 		for i in range(10, 15):
-			cardState[shuffledCards[i]] = "P1Hand"
+			card_state[shuffled_cards[i]] = "P1Hand"
 
 		for i in range(15, 20):
-			cardState[shuffledCards[i]] = "P2Hand"
+			card_state[shuffled_cards[i]] = "P2Hand"
 
-		trump = Deck.getSuit(shuffledCards[0])
+		trump = Deck.get_suit(shuffled_cards[0])
 
-		return Deck(cardState, stock, trump)
+		return Deck(card_state, stock, trump)
 
 	def clone(self):
-		deck = Deck(list(self.__cardState), list(self.__stock), self.__trump)
-		return deck
+		return Deck(list(self.__card_state), list(self.__trick), list(self.__stock), self.__trump)
 

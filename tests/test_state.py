@@ -31,9 +31,9 @@ class TestState(TestCase):
 
 		self.assertEqual(state.winner(), clone.winner())
 
-		currentDeck = state.get_deck()
-		cloneDeck = clone.get_deck()
-		self.assertEqual(currentDeck.getCardState(), cloneDeck.getCardState())
+		current_deck = state.get_deck()
+		clone_deck = clone.get_deck()
+		self.assertEqual(current_deck.getCardState(), clone_deck.getCardState())
 
 
 		pass
