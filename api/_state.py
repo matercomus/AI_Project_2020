@@ -1,8 +1,11 @@
-from api import util
+from api import util, Deck
+from numpy import random
 
 
 class State:
 	__deck = None  # type: Deck
+
+	__phase = None
 
 	__leads_turn = None  # type: bool
 
@@ -29,12 +32,16 @@ class State:
 		:param fleets:	  A list of fleet objects representing the fleets in transit in this state
 		"""
 		self.__deck = deck
+
+		self.__phase = 1 if len(deck.get_stock()) != 0 else 2
+
 		self.__player1s_turn = player1s_turn
 		self.__leads_turn = True
 
 		self.__p1_points = p1_points
 		self.__p2_points = p2_points
 
+	#TODO: Implement marriages
 	def next(self,
 			 move  # type: tuple(int, int)
 			 ):
@@ -120,12 +127,50 @@ class State:
 
 		return winner, points
 
+	def moves(self):
+		"""
+		:return: A list of all the legal moves that can be made by the player whose turn it is.
+		"""
+
+		hand = self.__deck.get_player_hand(self.whose_turn())
+
+		possible_moves = []
+
+		for card in hand:
+			possible_moves.append((card, None))
+
+		#TODO: ADD MARRIAGE
+
+		return possible_moves
+
+
+
 	def clone(self):
 		state = State(self.__deck.clone(), self.__player1s_turn, self.__p1_points, self.__p2_points)
+		state.__phase = self.__phase
 		state.__leads_turn = self.__leads_turn
 		state.__revoked = self.__revoked
 
 		return state
+
+	@staticmethod
+	def generate(self):
+		deck = Deck.generate()
+		player1s_turn = True if random.choice([1,2]) == 1 else False
+		return State(deck, player1s_turn)
+
+
+	def __repr__(self):
+		# type: () -> str
+		"""
+		:return: A concise string representation of the state in one line
+		"""
+
+		rep = "The game is in phase: " + self.__phase + "\n"
+		rep += "Player 1's points: " + self.__p1_points + "\n"
+		rep += "Player 2's points: " + self.__p2_points + "\n"
+
+
 
 	def is_valid(self, move):
 		return True
@@ -141,6 +186,9 @@ class State:
 
 	#Evaluate a complete trick, assign points and return the pid of the winner
 	def evaluate_trick(self, trick):
-		if len(trick) != 2 or trick[0] is None or trick[1] is None
-			raise RuntimeError("An incomplete trick was attempted to be evaluated")
+		if len(trick) != 2:
+			raise RuntimeError("Incorrect trick format. List of length 2 needed.")
+		if trick[0] is None or trick[1] is None:
+			raise RuntimeError("An incomplete trick was attempted to be evaluated.")
+		return 1
 		#TODO

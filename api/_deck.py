@@ -64,20 +64,31 @@ class Deck:
 	def get_suit(index):
 		return Deck.__SUITS[int(index/5)]
 
-	def get_card_state(self):
-		return self.__card_state
+	def get_card_states(self):
+		return list(self.__card_state)
+
+	def get_card_state(self, index):
+		return self.__card_state[index]
+
+	def get_stock(self):
+		return self.__stock
 
 	def set_card(self, index, state):
 		self.__card_state[index] = state
 
 	def get_trick(self):
-		return self.__trick
+		return list(self.__trick)
 
 	def set_trick(self, player, card):
-		self.__trick[player]
+		self.__trick[player] = card
 
 	def clear_trick(self):
 		self.__trick = [None, None]
+
+	def get_player_hand(self, player_id):
+		search_term = "P1H" if player_id == 1 else "P2H"
+		return [i for i, x in enumerate(self.__card_state) if x == search_term]
+
 
 
 	@staticmethod
@@ -92,18 +103,19 @@ class Deck:
 		# shuffled deck depending on their position. The indices of the
 		# stock cards are pushed onto the stock stack to save their order.
 		for i in range(10):
-			card_state[shuffled_cards[i]] = "Stock"
+			card_state[shuffled_cards[i]] = "S"
 			stock.append(shuffled_cards[i])
 
 		for i in range(10, 15):
-			card_state[shuffled_cards[i]] = "P1Hand"
+			card_state[shuffled_cards[i]] = "P1H"
 
 		for i in range(15, 20):
-			card_state[shuffled_cards[i]] = "P2Hand"
+			card_state[shuffled_cards[i]] = "P2H"
 
 		trump = Deck.get_suit(shuffled_cards[0])
 
 		return Deck(card_state, stock, trump)
+
 
 	def clone(self):
 		return Deck(list(self.__card_state), list(self.__trick), list(self.__stock), self.__trump)
