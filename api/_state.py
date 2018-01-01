@@ -1,6 +1,8 @@
 from api import util, Deck
 from numpy import random
 
+# TODO:
+# Trump Jack exchange for trump card in the stock
 
 class State:
 	__deck = None  # type: Deck
@@ -64,6 +66,7 @@ class State:
 		state.get_deck().set_trick(self.whose_turn(), move[0])
 
 		#If it's now the lead's turn, i.e. a complete trick has been played
+		#Add evalMarriage() method
 		if state.__leads_turn:
 
 			# Evaluate the trick and store the winner in the leader variable
@@ -127,6 +130,7 @@ class State:
 
 		return winner, points
 
+	# Add marriages, constrainst for 2nd phase
 	def moves(self):
 		"""
 		:return: A list of all the legal moves that can be made by the player whose turn it is.
@@ -138,8 +142,6 @@ class State:
 
 		for card in hand:
 			possible_moves.append((card, None))
-
-		#TODO: ADD MARRIAGE
 
 		return possible_moves
 
@@ -154,7 +156,7 @@ class State:
 		return state
 
 	@staticmethod
-	def generate(self):
+	def generate():
 		deck = Deck.generate()
 		player1s_turn = True if random.choice([1,2]) == 1 else False
 		return State(deck, player1s_turn)
@@ -166,12 +168,15 @@ class State:
 		:return: A concise string representation of the state in one line
 		"""
 
-		rep = "The game is in phase: " + self.__phase + "\n"
-		rep += "Player 1's points: " + self.__p1_points + "\n"
-		rep += "Player 2's points: " + self.__p2_points + "\n"
+		rep = "The game is in phase: {}\n".format(self.__phase)
+		rep += "Player 1's points: {}\n".format(self.__p1_points)
+		rep += "Player 2's points: {}\n".format(self.__p2_points)
+		rep += "There are {} cards in the stock".format(self.__deck.get_stock_size())
+
+		return rep
 
 
-
+	#TODO
 	def is_valid(self, move):
 		return True
 

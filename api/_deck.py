@@ -37,7 +37,6 @@ class Deck:
 
 	def __init__(self,
 				card_state,	# type: list[str]
-				trick, 		# type: list[int]
 				stock,		# type: list[int]
 				trump 		# type: str
 				):
@@ -48,7 +47,6 @@ class Deck:
 		"""
 
 		self.__card_state = card_state
-		self.__trick	 = trick
 		self.__stock	 = stock
 		self.__trump	 = trump
 
@@ -72,6 +70,9 @@ class Deck:
 
 	def get_stock(self):
 		return self.__stock
+
+	def get_stock_size(self):
+		return len(self.__stock)
 
 	def set_card(self, index, state):
 		self.__card_state[index] = state
@@ -118,5 +119,7 @@ class Deck:
 
 
 	def clone(self):
-		return Deck(list(self.__card_state), list(self.__trick), list(self.__stock), self.__trump)
+		deck = Deck(list(self.__card_state), list(self.__stock), self.__trump)
+		deck.__trick = self.__trick
+		return deck
 
