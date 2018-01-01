@@ -65,6 +65,7 @@ class State:
 			state.__revoked = self.whose_turn()
 			return state
 
+		print move
 		state.get_deck().set_trick(self.whose_turn(), move[0])
 
 		#If it's now the lead's turn, i.e. a complete trick has been played
@@ -94,7 +95,7 @@ class State:
 			if state.__phase == 1:
 				state.get_deck().draw_card(leader)
 				state.get_deck().draw_card(util.other(leader))
-				if state.get_deck().get_stock_size == 0:
+				if state.get_deck().get_stock_size() == 0:
 					state.__phase = 2
 
 
@@ -172,23 +173,25 @@ class State:
 			return possible_moves
 
 		else:
-			opponent_card = self.__deck.get_trick()[util.other(self.whose_turn())]
+			opponent_card = self.__deck.get_trick()[util.other(self.whose_turn())-1]
 			same_suit_hand = [card for card in hand if Deck.get_suit(card) == Deck.get_suit(opponent_card)]
 
 			if len(same_suit_hand) > 0:
 				same_suit_hand_higher = [card for card in same_suit_hand if card < opponent_card]
 
 				if len(same_suit_hand_higher) > 0:
-					return same_suit_hand_higher
-
-				return same_suit_hand
+					return [(x, None) for x in same_suit_hand_higher]
+					# return same_suit_hand_higher
+				return [(x, None) for x in same_suit_hand]
+				# return same_suit_hand
 
 			elif Deck.get_suit(opponent_card) != self.__deck.get_trump_suit():
 				trump_hand = [card for card in hand if Deck.get_suit(card) == self.__deck.get_trump_suit]
 				if len(trump_hand) > 0:
-					return trump_hand
-			
-			return hand
+					return [(x, None) for x in trump_hand]
+					# return trump_hand
+			return [(x, None) for x in hand]
+			# return hand
 
 
 
