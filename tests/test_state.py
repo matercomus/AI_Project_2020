@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from api import Deck, _state
+from api import Deck, State
 
 
 class TestState(TestCase):
@@ -22,7 +22,7 @@ class TestState(TestCase):
 
 	def test_clone(self):
 		deck = Deck.generate()
-		state = _state.State(deck,True)
+		state = State(deck,True)
 		clone = state.clone()
 
 		self.assertEqual(state.finished(), clone.finished())
@@ -37,3 +37,11 @@ class TestState(TestCase):
 
 
 		pass
+
+	# def test_game(self):
+	# 	state = State.generate()
+	#
+	# 	for i in range(5):
+	# 		moves = state.moves()
+	# 		state.next(moves[0])
+	#
