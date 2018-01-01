@@ -92,7 +92,7 @@ class Deck:
 		return self.__trump_suit
 
 	def draw_card(self, player):
-		if self.get_stock_size == 0:
+		if self.get_stock_size() == 0:
 			raise RuntimeError('Stack is empty.')
 		if player == 1:
 			self.__card_state[self.__stock.pop()] = "P1H"
