@@ -54,13 +54,18 @@ class TestState(TestCase):
 			state = state.next(moves[0])
 
 	def test_game_full(self):
-
-		for i in range(1000):
+		wins = 0
+		for i in range(10000):
 			state = State.generate()
 			while not state.finished():
 				moves = state.moves()
-				print state.get_deck().get_card_states()
-				print "p1 score: {}".format(state.get_points(1))
-				print "p2 score: {}".format(state.get_points(2))
-				print moves
+				# print state.get_deck().get_card_states()
+				# print "p1 score: {}".format(state.get_points(1))
+				# print "p2 score: {}".format(state.get_points(2))
+				# print moves
 				state = state.next(moves[0])
+
+			winner, points = state.winner()
+			if winner == 1:
+				wins +=1
+		print wins

@@ -65,7 +65,7 @@ class State:
 			state.__revoked = self.whose_turn()
 			return state
 
-		print move
+
 		state.get_deck().set_trick(self.whose_turn(), move[0])
 
 		#If it's now the lead's turn, i.e. a complete trick has been played
