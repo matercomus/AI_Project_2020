@@ -82,6 +82,14 @@ class State:
 
 			state.get_deck().put_trick_away(leader)
 
+			if len(state.get_deck().get_player_hand(1)) == 0:
+				# 11 is largest discrepancy between a player's points and 66 that
+				# corresponds to a game state which could end in a tie. In that case,
+				# we give the winner of the last trick 11 points so that he will have
+				# at least 66, thus avoiding a tie situation.
+				state.add_points(leader, 11)
+
+
 			#TODO: Clean up
 			if state.__phase == 1:
 				state.get_deck().draw_card(leader)
