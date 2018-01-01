@@ -59,7 +59,7 @@ class State:
 
 		# If we find an invalid move, we set the __revoked class variable
 		# To the pid of the player who made the incorrect move, and return the state as is.
-		if not is_valid(move):
+		if not self.is_valid(move):
 			state.__revoked = self.whose_turn()
 			return state
 
@@ -69,17 +69,32 @@ class State:
 		#Add evalMarriage() method
 		if state.__leads_turn:
 
+
 			# Evaluate the trick and store the winner in the leader variable
-			leader = evaluate_trick(state.get_deck().get_trick())
+			trick = state.get_deck().get_trick()
+
+			leader = self.evaluate_trick(trick)
+
+			self.allocate_points(leader, trick)
+
+			print "PLAYER 1 POINTS: " + str(self.__p1_points) + "; PLAYER 2 POINTS: " + str(self.__p2_points)
+
+			self.get_deck().put_trick_away(leader)
+
+			#TODO: Clean up
+			if self.__phase == 1:
+				self.get_deck().draw_card(leader)
+				self.get_deck().draw_card(util.other(leader))
+				if self.get_deck().get_stock_size == 0:
+					self.__phase = 2
+
+
 
 			# Set player1s_turn according to the leader variable
-			state.player1s_turn = True if leader == 1 else False
-
-			#Clear the trick once evaluated to make room for the next one.
-			state.get_deck().clear_trick()
+			state.__player1s_turn = True if leader == 1 else False
 
 		else:
-			state.player1s_turn = not state.player1s_turn
+			state.__player1s_turn = not state.__player1s_turn
 		# For Geoffrey: We need to think of a way to represent a trick that is
 		# in the process of being played. We talked about adding 2 new possible states
 		# to the cardStates array, but that might get messy. A simple way to do this would
@@ -138,12 +153,35 @@ class State:
 
 		hand = self.__deck.get_player_hand(self.whose_turn())
 
-		possible_moves = []
+		if self.__phase == 1 or self.whose_turn() == self.leader():
+			
+			possible_moves = []
 
-		for card in hand:
-			possible_moves.append((card, None))
+			for card in hand:
+				possible_moves.append((card, None))
 
-		return possible_moves
+			return possible_moves
+
+		else:
+			opponent_card = self.__deck.get_trick()[util.other(self.whose_turn())]
+			same_suit_hand = [card for card in hand if Deck.get_suit(card) == Deck.get_suit(opponent_card)]
+
+			if len(same_suit_hand) > 0:
+				same_suit_hand_higher = [card for card in same_suit_hand if card < opponent_card]
+
+				if len(same_suit_hand_higher) > 0:
+					return same_suit_hand_higher
+
+				return same_suit_hand
+
+			elif Deck.get_suit(opponent_card) != self.__deck.get_trump_suit():
+				trump_hand = [card for card in hand if Deck.get_suit(card) == self.__deck.get_trump_suit]
+				if len(trump_hand) > 0:
+					return trump_hand
+			
+			return hand
+
+
 
 
 
@@ -176,7 +214,7 @@ class State:
 		return rep
 
 
-	#TODO
+	#TODO Actual move validation in the context of the rules of the game
 	def is_valid(self, move):
 		return True
 
@@ -186,14 +224,47 @@ class State:
 	def whose_turn(self):
 		return 1 if self.__player1s_turn else 2
 
+	def leader(self):
+		return 1 if self.__leads_turn == self.__player1s_turn else 2
+
 	def get_points(self, player):
 		return self.__p1_points if player == 1 else self.__p2_points
 
+	def add_points(self, player, points):
+		if player == 1:
+			self.__p1_points += points
+		else:
+			self.__p2_points += points
+
+	def allocate_points(self, winner, trick):
+		score = [11, 10, 4, 3, 2]
+
+		# TODO: CLEAN UP
+		total_score = score[trick[0] % 5]
+		total_score += score[trick[1] % 5]
+
+		self.add_points(winner, total_score)
+
+
 	#Evaluate a complete trick, assign points and return the pid of the winner
+	#TODO: Make tests
 	def evaluate_trick(self, trick):
 		if len(trick) != 2:
 			raise RuntimeError("Incorrect trick format. List of length 2 needed.")
 		if trick[0] is None or trick[1] is None:
 			raise RuntimeError("An incomplete trick was attempted to be evaluated.")
-		return 1
-		#TODO
+		
+		# If the two cards of the trick have the same suit
+		if Deck.get_suit(trick[0]) == Deck.get_suit(trick[1]):
+			# If the two cards have the same suit, then we only consider rank,
+			# since the convention we defined in Deck puts higher rank cards
+			# at lower indices, when considering the same color.
+			return 1 if trick[0] < trick[1] else 2
+
+		if Deck.get_suit(trick[0]) ==  self.__deck.get_trump_suit():
+			return 1
+
+		if Deck.get_suit(trick[1]) ==  self.__deck.get_trump_suit():
+			return 2
+
+		return self.whose_turn()

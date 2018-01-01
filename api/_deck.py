@@ -28,27 +28,27 @@ class Deck:
 
 	# A variable length list of card indexes representing the
 	# cards currently in stock, and more importantly, their order.
-	# First index in this list is always the trump card, last index
+	# First index in this list is always the trump_suit card, last index
 	# is where the cards are taken from the stock.
 	__stock = None # type: list[int]
 
-	# The suit of the trump card for this given deck instance.
-	__trump = None # type: String
+	# The suit of the trump_suit card for this given deck instance.
+	__trump_suit = None # type: String
 
 	def __init__(self,
 				card_state,	# type: list[str]
 				stock,		# type: list[int]
-				trump 		# type: str
+				trump_suit 		# type: str
 				):
 		"""
 		:param card_state: list of current card states
 		:param stock: list of indexes of cards in stock
-		:param trump: {C,D,H,S}
+		:param trump_suit: {C,D,H,S}
 		"""
 
 		self.__card_state = card_state
 		self.__stock	 = stock
-		self.__trump	 = trump
+		self.__trump_suit	 = trump_suit
 
 
 	# Computes the rank of a given card index, following the ordering given above.
@@ -81,14 +81,33 @@ class Deck:
 		return list(self.__trick)
 
 	def set_trick(self, player, card):
-		self.__trick[player] = card
+		self.__trick[player-1] = card
 
-	def clear_trick(self):
-		self.__trick = [None, None]
 
 	def get_player_hand(self, player_id):
 		search_term = "P1H" if player_id == 1 else "P2H"
 		return [i for i, x in enumerate(self.__card_state) if x == search_term]
+
+	def get_trump_suit(self):
+		return self.__trump_suit
+
+	def draw_card(self, player):
+		if self.get_stock_size == 0:
+			raise RuntimeError('Stack is empty.')
+		if player == 1:
+			self.__card_state[self.__stock.pop()] = "P1H"
+		else:
+			self.__card_state[self.__stock.pop()] = "P2H"
+
+	def put_trick_away(self, winner):
+		if winner == 1:
+			self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = "P1W"
+		else:
+			self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = "P2W"
+
+		self.__trick = [None, None]
+
+
 
 
 
@@ -113,13 +132,13 @@ class Deck:
 		for i in range(15, 20):
 			card_state[shuffled_cards[i]] = "P2H"
 
-		trump = Deck.get_suit(shuffled_cards[0])
+		trump_suit = Deck.get_suit(shuffled_cards[0])
 
-		return Deck(card_state, stock, trump)
+		return Deck(card_state, stock, trump_suit)
 
 
 	def clone(self):
-		deck = Deck(list(self.__card_state), list(self.__stock), self.__trump)
+		deck = Deck(list(self.__card_state), list(self.__stock), self.__trump_suit)
 		deck.__trick = self.__trick
 		return deck
 

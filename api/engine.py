@@ -100,7 +100,7 @@ def pr(string, verbose):
     if(verbose):
         print(string)
 
-
+#Syntax checking the move
 def check(
         move, # type: tuple[int, int]
         player):
