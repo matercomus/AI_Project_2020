@@ -51,6 +51,8 @@ class State:
 		if self.finished():
 			raise RuntimeError('Gamestate is finished. No next states exist.')
 
+		# print "PLAYER 1 POINTS: " + str(self.__p1_points) + "; PLAYER 2 POINTS: " + str(self.__p2_points)
+
 		# Start with a copy of the current state
 		state = self.clone()  # type: State
 
@@ -73,20 +75,19 @@ class State:
 			# Evaluate the trick and store the winner in the leader variable
 			trick = state.get_deck().get_trick()
 
-			leader = self.evaluate_trick(trick)
+			leader = state.evaluate_trick(trick)
 
-			self.allocate_points(leader, trick)
+			state.allocate_points(leader, trick)
 
-			print "PLAYER 1 POINTS: " + str(self.__p1_points) + "; PLAYER 2 POINTS: " + str(self.__p2_points)
 
-			self.get_deck().put_trick_away(leader)
+			state.get_deck().put_trick_away(leader)
 
 			#TODO: Clean up
-			if self.__phase == 1:
-				self.get_deck().draw_card(leader)
-				self.get_deck().draw_card(util.other(leader))
-				if self.get_deck().get_stock_size == 0:
-					self.__phase = 2
+			if state.__phase == 1:
+				state.get_deck().draw_card(leader)
+				state.get_deck().draw_card(util.other(leader))
+				if state.get_deck().get_stock_size == 0:
+					state.__phase = 2
 
 
 
