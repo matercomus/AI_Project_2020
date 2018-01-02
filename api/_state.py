@@ -49,6 +49,12 @@ class State:
 			 ):
 
 		if self.finished():
+			# print self
+			# print self.moves()
+			# print self.get_deck().get_card_states()
+			# print self.get_deck().get_trick()
+			# print move
+			print self.__revoked, self.__p1_points, self.__p2_points
 			raise RuntimeError('Gamestate is finished. No next states exist.')
 
 		# print "PLAYER 1 POINTS: " + str(self.__p1_points) + "; PLAYER 2 POINTS: " + str(self.__p2_points)
@@ -78,7 +84,7 @@ class State:
 
 			leader = state.evaluate_trick(trick)
 
-			state.allocate_points(leader, trick)
+			state.allocate_trick_points(leader, trick)
 
 
 			state.get_deck().put_trick_away(leader)
@@ -105,13 +111,6 @@ class State:
 
 		else:
 			state.__player1s_turn = not state.__player1s_turn
-		# For Geoffrey: We need to think of a way to represent a trick that is
-		# in the process of being played. We talked about adding 2 new possible states
-		# to the cardStates array, but that might get messy. A simple way to do this would
-		# be to have a list of length 2 called trick which would contain either [None, None] or
-		# the indices of cards being played. This has the advantage that we don't have to
-		# do list comprehension on a 20-element list potentially thousands of times, so this
-		# is the way I will implement it, but feel free to change it if you think differently.
 
 		return state
 
@@ -161,7 +160,7 @@ class State:
 		:return: A list of all the legal moves that can be made by the player whose turn it is.
 		"""
 
-		hand = self.__deck.get_player_hand(self.whose_turn())
+		hand = self.get_deck().get_player_hand(self.whose_turn())
 
 		if self.__phase == 1 or self.whose_turn() == self.leader():
 			
@@ -173,7 +172,7 @@ class State:
 			return possible_moves
 
 		else:
-			opponent_card = self.__deck.get_trick()[util.other(self.whose_turn())-1]
+			opponent_card = self.get_deck().get_trick()[util.other(self.whose_turn())-1]
 			same_suit_hand = [card for card in hand if Deck.get_suit(card) == Deck.get_suit(opponent_card)]
 
 			if len(same_suit_hand) > 0:
@@ -185,8 +184,8 @@ class State:
 				return [(x, None) for x in same_suit_hand]
 				# return same_suit_hand
 
-			elif Deck.get_suit(opponent_card) != self.__deck.get_trump_suit():
-				trump_hand = [card for card in hand if Deck.get_suit(card) == self.__deck.get_trump_suit]
+			elif Deck.get_suit(opponent_card) != self.get_deck().get_trump_suit():
+				trump_hand = [card for card in hand if Deck.get_suit(card) == self.get_deck().get_trump_suit()]
 				if len(trump_hand) > 0:
 					return [(x, None) for x in trump_hand]
 					# return trump_hand
@@ -194,11 +193,8 @@ class State:
 			# return hand
 
 
-
-
-
 	def clone(self):
-		state = State(self.__deck.clone(), self.__player1s_turn, self.__p1_points, self.__p2_points)
+		state = State(self.get_deck().clone(), self.__player1s_turn, self.__p1_points, self.__p2_points)
 		state.__phase = self.__phase
 		state.__leads_turn = self.__leads_turn
 		state.__revoked = self.__revoked
@@ -221,14 +217,19 @@ class State:
 		rep = "The game is in phase: {}\n".format(self.__phase)
 		rep += "Player 1's points: {}\n".format(self.__p1_points)
 		rep += "Player 2's points: {}\n".format(self.__p2_points)
-		rep += "There are {} cards in the stock".format(self.__deck.get_stock_size())
+		rep += "There are {} cards in the stock".format(self.get_deck().get_stock_size())
 
 		return rep
 
 
-	#TODO Actual move validation in the context of the rules of the game
+	#TODO Marriages
+	#TODO Maybe change card_state array to something less terrible to compare to
 	def is_valid(self, move):
-		return True
+		if self.__phase == 1 or self.__leads_turn:
+			return (self.get_deck().get_card_state(move[0]) == ("P" + str(self.whose_turn()) + "H"))
+		
+		return move in self.moves()
+
 
 	def get_deck(self):
 		return self.__deck
@@ -248,10 +249,10 @@ class State:
 		else:
 			self.__p2_points += points
 
-	def allocate_points(self, winner, trick):
+	def allocate_trick_points(self, winner, trick):
 		score = [11, 10, 4, 3, 2]
 
-		# TODO: CLEAN UP
+		# TODO: CLEAN UP, ADD EXPLANATION
 		total_score = score[trick[0] % 5]
 		total_score += score[trick[1] % 5]
 
@@ -259,7 +260,6 @@ class State:
 
 
 	#Evaluate a complete trick, assign points and return the pid of the winner
-	#TODO: Make tests
 	def evaluate_trick(self, trick):
 		if len(trick) != 2:
 			raise RuntimeError("Incorrect trick format. List of length 2 needed.")
@@ -273,10 +273,10 @@ class State:
 			# at lower indices, when considering the same color.
 			return 1 if trick[0] < trick[1] else 2
 
-		if Deck.get_suit(trick[0]) ==  self.__deck.get_trump_suit():
+		if Deck.get_suit(trick[0]) ==  self.get_deck().get_trump_suit():
 			return 1
 
-		if Deck.get_suit(trick[1]) ==  self.__deck.get_trump_suit():
+		if Deck.get_suit(trick[1]) ==  self.get_deck().get_trump_suit():
 			return 2
 
 		return self.whose_turn()

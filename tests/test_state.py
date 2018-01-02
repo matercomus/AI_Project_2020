@@ -42,20 +42,22 @@ class TestState(TestCase):
 		state = State.generate()
 
 		for i in range(10):
-			moves = state.moves()
-			state = state.next(moves[0])
+			if not state.finished():
+				moves = state.moves()
+				state = state.next(moves[0])
 
 	def test_game15(self):
 		state = State.generate()
 
 		for i in range(15):
-			print state
-			moves = state.moves()
-			state = state.next(moves[0])
+			if not state.finished():
+				# print state
+				moves = state.moves()
+				state = state.next(moves[0])
 
 	def test_game_full(self):
 		wins = 0
-		for i in range(10000):
+		for i in range(500000):
 			state = State.generate()
 			while not state.finished():
 				moves = state.moves()

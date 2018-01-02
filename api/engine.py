@@ -17,10 +17,6 @@ def play(
     pr('player1: {}'.format(player1), verbose)
     pr('player2: {}'.format(player2), verbose)
 
-    # Check if the inputs are correct
-    # if state.whose_turn() != 1:
-    #     raise ValueError('The starting state should have player 1 to move (found state.whose_turn() == {}).'.format(state.whose_turn()))
-
     # The game loop
     while not state.finished():
 
@@ -110,21 +106,16 @@ def check(
     :param move:
     :param player:
     """
-    # TODO: CHANGE EVERYTHING
-    # ONLY CHECKING STRUCTURE OF MOVE, NOT CONTENT
 
+    if not type(move) is tuple:
+        raise RuntimeError(
+            'Bot {} returned a move ({}) that was not in a pair of numbers (i.e. (2,3))'.format(
+                player, move))
 
+    if len(move) != 2:
+        raise RuntimeError('Bot {} returned a move ({}) that was not of length 2.').format(
+                player, move))
     
-    # if not move is None:
-    #     if not type(move) is tuple:
-    #         raise RuntimeError(
-    #             'Bot {} returned a move ({}) that was neither None nor a pair of numbers (ie. (2, 3)). Check what kind of thing your bot outputs.'.format(
-    #                 player, move))
-    #     if type(move[0]) is Planet or type(move[1]) is Planet:
-    #         raise RuntimeError(
-    #             "Bot {} returned a move ({}) that contained Planet objects instead of integers. Try changing the last line of your get_move function from 'return (src, dest)' to 'return (src.id(), dest.id())'".format(
-    #                 player, move))
-    #     if (not type(move[0]) is int) or not (type(move[1]) is int):
-    #         raise RuntimeError(
-    #             "Bot {} returned a move ({}) that contained something other than integers. The return value should be a pair of integers.'".format(
-    #                 player, move))
+    if (not type(move[0]) is int) or (not type(move[1]) is int):
+        raise RuntimeError('Bot {} returned a move ({}) that was not a tuple of integers.').format(
+                player, move))
