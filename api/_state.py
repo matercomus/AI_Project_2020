@@ -227,6 +227,8 @@ class State:
 		
 		return move in self.moves()
 
+	def exchange_trump(self):
+		self.__deck.exchange_trump()
 
 	def get_deck(self):
 		return self.__deck

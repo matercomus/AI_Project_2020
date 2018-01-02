@@ -115,6 +115,3 @@ def check(
     
     if (type(move[0]) is not int) or ((type(move[1]) is not int) and (move[1] is not None)):
         raise RuntimeError('Bot {} returned a move ({}) that was not a tuple of integers.').format(player, move))
-
-
-
