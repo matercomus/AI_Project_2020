@@ -57,7 +57,7 @@ class TestState(TestCase):
 
 	def test_game_full(self):
 		wins = 0
-		for i in range(500000):
+		for i in range(50000):
 			state = State.generate()
 			while not state.finished():
 				moves = state.moves()
