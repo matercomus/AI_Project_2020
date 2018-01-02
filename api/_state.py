@@ -3,6 +3,9 @@ from numpy import random
 
 # TODO:
 # Trump Jack exchange for trump card in the stock
+# Change all method calls of class variables from within the class to the variables themselves
+# Marriages
+# Player perspectives
 
 class State:
 	__deck = None  # type: Deck
@@ -49,12 +52,6 @@ class State:
 			 ):
 
 		if self.finished():
-			# print self
-			# print self.moves()
-			# print self.get_deck().get_card_states()
-			# print self.get_deck().get_trick()
-			# print move
-			print self.__revoked, self.__p1_points, self.__p2_points
 			raise RuntimeError('Gamestate is finished. No next states exist.')
 
 		# print "PLAYER 1 POINTS: " + str(self.__p1_points) + "; PLAYER 2 POINTS: " + str(self.__p2_points)
