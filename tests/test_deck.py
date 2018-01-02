@@ -15,3 +15,19 @@ class TestDeck(TestCase):
         player2 = d.get_card_states().count("P2H")
         self.assertEqual(player2, 5,"The value should be 5")
 
+    def test_trump_exchange(self):
+
+		d = Deck.generate()
+		print d.get_trump_suit()
+		print d.get_card_states()
+		if d.can_exchange(1):
+			print "1 exchanged"
+			d.exchange_trump()
+			print d.get_card_states()
+
+		elif d.can_exchange(2):
+			print "2 exchanged"
+			d.exchange_trump()
+			print d.get_card_states()
+		else:
+			print "no one exchanged"

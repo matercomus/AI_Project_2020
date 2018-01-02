@@ -83,6 +83,8 @@ class Deck:
 	def set_trick(self, player, card):
 		self.__trick[player-1] = card
 
+	def can_exchange(self, player):
+		return self.__card_state[self.get_trump_jack_index()] == "P" + str(player) + "H"
 
 	def get_player_hand(self, player_id):
 		search_term = "P1H" if player_id == 1 else "P2H"
@@ -90,6 +92,20 @@ class Deck:
 
 	def get_trump_suit(self):
 		return self.__trump_suit
+
+	def exchange_trump(self):
+		# print self.__stock
+		trump_jack_index = self.get_trump_jack_index()
+		self.__card_state[self.__stock[0]] = self.__card_state[trump_jack_index]
+
+		self.__card_state[trump_jack_index] = "S"
+		self.__stock[0] = trump_jack_index
+		# print self.__stock
+
+	def get_trump_jack_index(self):
+		trump_jack_index = (self.__stock[0]/5)*5 +4
+		# print trump_jack_index
+		return trump_jack_index
 
 	def draw_card(self, player):
 		if self.get_stock_size() == 0:
