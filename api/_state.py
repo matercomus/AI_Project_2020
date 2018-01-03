@@ -1,11 +1,12 @@
 from api import util, Deck
-from numpy import random
+import random
 
 # TODO:
-# Trump Jack exchange for trump card in the stock
+# Representation of the swap move in possible moves
 # Change all method calls of class variables from within the class to the variables themselves
 # Marriages
 # Player perspectives
+# Implement seed
 
 class State:
 	__deck = None  # type: Deck
@@ -86,12 +87,9 @@ class State:
 
 			state.get_deck().put_trick_away(leader)
 
-			if len(state.get_deck().get_player_hand(1)) == 0:
-				# 11 is largest discrepancy between a player's points and 66 that
-				# corresponds to a game state which could end in a tie. In that case,
-				# we give the winner of the last trick 11 points so that he will have
-				# at least 66, thus avoiding a tie situation.
-				state.add_points(leader, 11)
+			if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
+				# If all cards are exhausted, the winner of the last trick wins the game
+				state.set_points(leader, 66)
 
 
 			#TODO: Clean up
@@ -227,8 +225,8 @@ class State:
 		
 		return move in self.moves()
 
-	def exchange_trump(self):
-		self.__deck.exchange_trump()
+	def exchange_trump(self, trump_jack_index):
+		self.__deck.exchange_trump(trump_jack_index)
 
 	def get_deck(self):
 		return self.__deck
@@ -241,6 +239,12 @@ class State:
 
 	def get_points(self, player):
 		return self.__p1_points if player == 1 else self.__p2_points
+
+	def set_points(self, player, points):
+		if player == 1:
+			self.__p1_points = points
+		else:
+			self.__p2_points = points
 
 	def add_points(self, player, points):
 		if player == 1:

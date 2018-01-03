@@ -93,19 +93,20 @@ class Deck:
 	def get_trump_suit(self):
 		return self.__trump_suit
 
-	def exchange_trump(self):
-		# print self.__stock
-		trump_jack_index = self.get_trump_jack_index()
+	def exchange_trump(self, trump_jack_index):
+
+		# trump_jack_index = self.get_trump_jack_index()
+
 		self.__card_state[self.__stock[0]] = self.__card_state[trump_jack_index]
 
 		self.__card_state[trump_jack_index] = "S"
-		self.__stock[0] = trump_jack_index
-		# print self.__stock
 
-	def get_trump_jack_index(self):
-		trump_jack_index = (self.__stock[0]/5)*5 +4
-		# print trump_jack_index
-		return trump_jack_index
+		self.__stock[0] = trump_jack_index
+
+	# def get_trump_jack_index(self):
+	# 	trump_jack_index = (self.__stock[0]/5)*5 +4
+	# 	# print trump_jack_index
+	# 	return trump_jack_index
 
 	def draw_card(self, player):
 		if self.get_stock_size() == 0:

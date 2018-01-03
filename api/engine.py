@@ -35,7 +35,7 @@ def play(
 
 
     if state.finished():
-        pr('Game finished. Player {} has won.'.format(state.winner()), verbose)
+        pr('Game finished. Player {} has won, receiving {} points.'.format(state.winner()[0], state.winner()[1]), verbose)
     else:
         pr('Maximum turns exceed. No winner.', verbose)
 
@@ -111,7 +111,7 @@ def check(
         raise RuntimeError('Bot {} returned a move ({}) that was not in a pair of numbers (i.e. (2,3))'.format(player, move))
 
     if len(move) != 2:
-        raise RuntimeError('Bot {} returned a move ({}) that was not of length 2.').format(player, move))
+        raise RuntimeError('Bot {} returned a move ({}) that was not of length 2.'.format(player, move))
     
     if (type(move[0]) is not int) or ((type(move[1]) is not int) and (move[1] is not None)):
-        raise RuntimeError('Bot {} returned a move ({}) that was not a tuple of integers.').format(player, move))
+        raise RuntimeError('Bot {} returned a move ({}) that was not a tuple of integers.'.format(player, move))
