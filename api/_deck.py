@@ -46,9 +46,9 @@ class Deck:
 		:param trump_suit: {C,D,H,S}
 		"""
 
-		self.__card_state = card_state
-		self.__stock	 = stock
-		self.__trump_suit	 = trump_suit
+		self.__card_state	= card_state
+		self.__stock		= stock
+		self.__trump_suit	= trump_suit
 
 
 	# Computes the rank of a given card index, following the ordering given above.
@@ -82,6 +82,7 @@ class Deck:
 
 	def set_trick(self, player, card):
 		self.__trick[player-1] = card
+		return self.__trick
 
 	def can_exchange(self, player):
 		return self.__card_state[self.get_trump_jack_index()] == "P" + str(player) + "H"

@@ -1,12 +1,17 @@
 from api import util, Deck
 import random
 
+# OPTIONAL/USEFUL FOR TESTING
+# Implement seed
+
 # TODO:
 # Representation of the swap move in possible moves
 # Change all method calls of class variables from within the class to the variables themselves
-# Marriages
+# Marriages - Pending points
 # Player perspectives
-# Implement seed
+# Start at phase 1/2
+# Bully, rdeep bots
+
 
 class State:
 	__deck = None  # type: Deck
@@ -20,13 +25,23 @@ class State:
 	__p1_points = None  # type: int
 	__p2_points = None  # type: int
 
+
+	# Decided to put the perspectives in State because they are more of a
+	# construct over the real deck state, and because they relate to the players
+	# of the game, which we've kept out of the deck so far.
+
+	__p1_perspective = None
+	__p2_perspective = None
+
 	__revoked = None  # type: int, None
 
 	def __init__(self,
 				 deck,  # type: Deck
 				 player1s_turn,  # type: bool
 				 p1_points=0,  # type: int
-				 p2_points=0  # type: int
+				 p2_points=0,  # type: int
+				 p1_perspective=None,
+				 p2_perspective=None
 				 ):
 		"""
 		:param map:		 The playing area
@@ -46,6 +61,29 @@ class State:
 
 		self.__p1_points = p1_points
 		self.__p2_points = p2_points
+
+		# If perspectives are not given in the constructor, they are computed:
+		# If phase 1, all cards that are not either in the player's hand or won already,
+		# or the revealed trump card on the bottom of the stock, are unknown.
+		# If phase 2, everything is known, so deck.__card_state is simply copied over.
+		# This is all that can be deduced from a card state array, but further knowledge
+		# can be gathered through trump jack exchanges or marriages, which is implemented
+		# in the player's perspective in state transitions.
+
+		if p1_perspective is None:
+			if self.__phase == 1:
+				p1_perspective = [card if ((card != "S" or index == deck.get_stock()[0]) and card != "P2H") else "U" for index, card in enumerate(deck.get_card_states())]
+			else:
+				p1_perspective = deck.get_card_states()
+
+		if p2_perspective is None:
+			if self.__phase == 1:
+				p2_perspective = [card if ((card != "S" or index == deck.get_stock()[0]) and card != "P1H") else "U" for index, card in enumerate(deck.get_card_states())]
+			else:
+				p2_perspective = deck.get_card_states()
+
+		self.__p1_perspective = p1_perspective
+		self.__p2_perspective = p2_perspective
 
 	#TODO: Implement marriages
 	def next(self,
@@ -70,7 +108,11 @@ class State:
 			return state
 
 
-		state.get_deck().set_trick(self.whose_turn(), move[0])
+		#Made set_trick return the trick so that we can cleanly assign it here
+		#because it ends up being used in both branches of the next if statement
+		trick = state.get_deck().set_trick(self.whose_turn(), move[0])
+
+
 
 		#If it's now the lead's turn, i.e. a complete trick has been played
 		#Add evalMarriage() method
@@ -78,7 +120,7 @@ class State:
 
 
 			# Evaluate the trick and store the winner in the leader variable
-			trick = state.get_deck().get_trick()
+			# trick = state.get_deck().get_trick()
 
 			leader = state.evaluate_trick(trick)
 
@@ -87,11 +129,14 @@ class State:
 
 			state.get_deck().put_trick_away(leader)
 
+			state.alter_perspective(trick, leader)
+
 			if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
 				# If all cards are exhausted, the winner of the last trick wins the game
 				state.set_points(leader, 66)
 
 
+			#Draw cards
 			#TODO: Clean up
 			if state.__phase == 1:
 				state.get_deck().draw_card(leader)
@@ -106,6 +151,8 @@ class State:
 
 		else:
 			state.__player1s_turn = not state.__player1s_turn
+			state.add_partial_trick_to_perspective(trick, state.whose_turn())
+
 
 		return state
 
@@ -189,7 +236,7 @@ class State:
 
 
 	def clone(self):
-		state = State(self.get_deck().clone(), self.__player1s_turn, self.__p1_points, self.__p2_points)
+		state = State(self.get_deck().clone(), self.__player1s_turn, self.__p1_points, self.__p2_points, list(self.__p1_perspective), list(self.__p2_perspective))
 		state.__phase = self.__phase
 		state.__leads_turn = self.__leads_turn
 		state.__revoked = self.__revoked
@@ -199,9 +246,8 @@ class State:
 	@staticmethod
 	def generate():
 		deck = Deck.generate()
-		player1s_turn = True if random.choice([1,2]) == 1 else False
+		player1s_turn = random.choice([True, False])
 		return State(deck, player1s_turn)
-
 
 	def __repr__(self):
 		# type: () -> str
@@ -234,6 +280,9 @@ class State:
 	def whose_turn(self):
 		return 1 if self.__player1s_turn else 2
 
+	def get_perspective(self, player):
+		return self.__p1_perspective if player == 1 else self.__p2_perspective
+
 	def leader(self):
 		return 1 if self.__leads_turn == self.__player1s_turn else 2
 
@@ -260,6 +309,26 @@ class State:
 		total_score += score[trick[1] % 5]
 
 		self.add_points(winner, total_score)
+
+	#Alters perspective with only a partial trick
+	def add_partial_trick_to_perspective(self, trick, player):
+		if player == 1:
+			self.__p1_perspective[trick[util.other(player) - 1]] = "P2H"
+		else:
+			self.__p2_perspective[trick[util.other(player) - 1]] = "P1H"
+
+
+	#Alters perpsective with a complete trick
+	def alter_perspective(self, trick, winner):
+
+		if winner == 1:
+			self.__p1_perspective[trick[0]] = self.__p1_perspective[trick[1]] = "P1W"
+			self.__p2_perspective[trick[0]] = self.__p2_perspective[trick[1]] = "P1W"
+
+		else:
+			self.__p1_perspective[trick[0]] = self.__p1_perspective[trick[1]] = "P2W"
+			self.__p2_perspective[trick[0]] = self.__p2_perspective[trick[1]] = "P2W"
+
 
 
 	#Evaluate a complete trick, assign points and return the pid of the winner
