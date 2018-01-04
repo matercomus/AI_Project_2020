@@ -230,7 +230,7 @@ class State:
 			# return possible_moves
 
 		else:
-			opponent_card = self.get_deck().get_trick()[util.other(self.whose_turn())-1]
+			opponent_card = self.get_opponents_card()
 			same_suit_hand = [card for card in hand if Deck.get_suit(card) == Deck.get_suit(opponent_card)]
 
 			if len(same_suit_hand) > 0:
@@ -310,6 +310,9 @@ class State:
 
 	def get_deck(self):
 		return self.__deck
+
+	def get_opponents_card(self):
+		return self.get_deck().get_trick()[util.other(self.whose_turn()) - 1]
 
 	def whose_turn(self):
 		return 1 if self.__player1s_turn else 2
