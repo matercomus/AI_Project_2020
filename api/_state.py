@@ -243,10 +243,20 @@ class State:
 
 		return state
 
+	# @staticmethod
+	# def generate():
+	# 	deck = Deck.generate()
+	# 	player1s_turn = random.choice([True, False])
+	# 	return State(deck, player1s_turn)
+
 	@staticmethod
-	def generate():
-		deck = Deck.generate()
-		player1s_turn = random.choice([True, False])
+	def generate(id):
+		if (id != None):
+			rng = random.Random(id)
+		else:
+			rng = random
+		deck = Deck.generate(id)
+		player1s_turn = rng.choice([True, False])
 		return State(deck, player1s_turn)
 
 	def __repr__(self):

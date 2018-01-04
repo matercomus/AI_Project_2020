@@ -34,7 +34,9 @@ def run_tournament(options):
             else:
                 p = [b, a]
 
-            start = State.generate()
+            # Generate a state with a random seed
+            # TODO: maybe actually change to random instead of 0 signifying random
+            start = State.generate(0)
 
             winner = engine.play(bots[p[0]], bots[p[1]], start, verbose=False)
 

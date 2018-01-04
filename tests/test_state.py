@@ -21,7 +21,7 @@ class TestState(TestCase):
 		pass
 
 	def test_clone(self):
-		deck = Deck.generate()
+		deck = Deck.generate(0)
 		state = State(deck,True)
 		clone = state.clone()
 
@@ -39,7 +39,7 @@ class TestState(TestCase):
 		pass
 
 	def test_game10(self):
-		state = State.generate()
+		state = State.generate(0)
 
 		for i in range(10):
 			if not state.finished():
@@ -47,7 +47,7 @@ class TestState(TestCase):
 				state = state.next(moves[0])
 
 	def test_game15(self):
-		state = State.generate()
+		state = State.generate(0)
 
 		for i in range(15):
 			if not state.finished():
@@ -57,8 +57,8 @@ class TestState(TestCase):
 
 	def test_game_full(self):
 		wins = 0
-		for i in range(10000):
-			state = State.generate()
+		for i in range(1000):
+			state = State.generate(0)
 			while not state.finished():
 				moves = state.moves()
 				# print state.get_deck().get_card_states()
@@ -71,3 +71,21 @@ class TestState(TestCase):
 			if winner == 1:
 				wins +=1
 		print wins
+
+	def test_seed_same(self):
+		for i in range(1,1000):
+			id = i
+			s = State.generate(id)
+			s1 = State.generate(id)
+			if s.get_deck().get_card_states() != s1.get_deck().get_card_states() or s.whose_turn() != s.whose_turn():
+				raise RuntimeError("The decks are not shuffled in the same way.")
+				print s.get_deck().get_card_states()
+				print s1.get_deck().get_card_states()
+
+	def test_seed_different(self):
+		s = State.generate(0)
+		s1 = State.generate(0)
+		if s.get_deck().get_card_states() == s1.get_deck().get_card_states():
+			raise RuntimeError("The decks are shuffled in the same way.")
+			print s.get_deck().get_card_states()
+			print s1.get_deck().get_card_states()

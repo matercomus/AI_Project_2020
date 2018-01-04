@@ -1,4 +1,4 @@
-from numpy import random
+import random
 
 class Deck:
 	"""
@@ -129,10 +129,41 @@ class Deck:
 
 
 
-	@staticmethod
-	def generate():
+	# @staticmethod
+	# def generate():
+	#
+	# 	shuffled_cards = random.permutation(range(20))
+	#
+	# 	card_state = [0]*20
+	# 	stock = [] # Can be thought of as a stack data structure.
+	#
+	# 	# Three separate for loops assign a state to the cards in the
+	# 	# shuffled deck depending on their position. The indices of the
+	# 	# stock cards are pushed onto the stock stack to save their order.
+	# 	for i in range(10):
+	# 		card_state[shuffled_cards[i]] = "S"
+	# 		stock.append(shuffled_cards[i])
+	#
+	# 	for i in range(10, 15):
+	# 		card_state[shuffled_cards[i]] = "P1H"
+	#
+	# 	for i in range(15, 20):
+	# 		card_state[shuffled_cards[i]] = "P2H"
+	#
+	# 	trump_suit = Deck.get_suit(shuffled_cards[0])
+	#
+	# 	return Deck(card_state, stock, trump_suit)
 
-		shuffled_cards = random.permutation(range(20))
+	@staticmethod
+	def generate(id):
+		if id is 0:
+			id = random.randint(0, 100000)
+
+		rng = random.Random(id)
+		shuffled_cards = range(20)
+		rng.shuffle(shuffled_cards)
+
+		# shuffled_cards = rng.permutation(range(20))
 
 		card_state = [0]*20
 		stock = [] # Can be thought of as a stack data structure.

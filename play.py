@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-2", "--player2",
                         dest="player2",
-                        help="the program to run for player 2 (default: bully)",
+                        help="the program to run for player 2 (default: rand)",
                         default="rand")
 
     parser.add_argument("-t", "--max-time",
