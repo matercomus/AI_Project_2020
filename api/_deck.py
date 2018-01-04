@@ -104,10 +104,34 @@ class Deck:
 
 		self.__stock[0] = trump_jack_index
 
-	# def get_trump_jack_index(self):
-	# 	trump_jack_index = (self.__stock[0]/5)*5 +4
-	# 	# print trump_jack_index
-	# 	return trump_jack_index
+	def get_trump_jack_index(self):
+
+		#The Aces of different suits are always 5 apart from another Ace
+		trump_ace_index = self.__SUITS.index(self.__trump_suit) * 5
+
+		#The Jack of a suit is always 4 cards removed from the Ace of the same suit
+		trump_jack_index = trump_ace_index + 4
+
+		return trump_jack_index
+
+	def get_possible_mariages(self, player):
+		possible_mariages = []
+		player_hand = self.get_player_hand(player)
+		#TODO: quite bulky, maybe change into a more elegant solution or at the very least comment
+		if 2 in player_hand and 3 in player_hand:
+			possible_mariages.append((2, 3))
+			possible_mariages.append((3, 2))
+		if 7 in player_hand and 8 in player_hand:
+			possible_mariages.append((7, 8))
+			possible_mariages.append((8, 7))
+		if 12 in player_hand and 13 in player_hand:
+			possible_mariages.append((12, 13))
+			possible_mariages.append((13, 12))
+		if 17 in player_hand and 18 in player_hand:
+			possible_mariages.append((17, 18))
+			possible_mariages.append((18, 17))
+
+		return possible_mariages
 
 	def draw_card(self, player):
 		if self.get_stock_size() == 0:

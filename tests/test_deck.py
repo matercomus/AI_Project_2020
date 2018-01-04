@@ -4,7 +4,7 @@ from api import Deck
 class TestDeck(TestCase):
 
     def test_generate(self):
-        d = Deck.generate()
+        d = Deck.generate(0)
 
         stock = d.get_card_states().count("S")
         self.assertEqual(stock,10,"The value should be 10")
@@ -17,7 +17,7 @@ class TestDeck(TestCase):
 
     def test_trump_exchange(self):
 
-		d = Deck.generate()
+		d = Deck.generate(0)
 		print d.get_trump_suit()
 		print d.get_card_states()
 		if d.can_exchange(1):

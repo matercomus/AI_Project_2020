@@ -1,13 +1,11 @@
 from api import util, Deck
 import random
 
-# OPTIONAL/USEFUL FOR TESTING
-# Implement seed
 
 # TODO:
-# Representation of the swap move in possible moves
+# V Representation of the swap move in possible moves
 # Change all method calls of class variables from within the class to the variables themselves
-# Marriages - Pending points
+# V Marriages - Pending points
 # Player perspectives
 # Start at phase 1/2
 # Bully, rdeep bots
@@ -25,6 +23,9 @@ class State:
 	__p1_points = None  # type: int
 	__p2_points = None  # type: int
 
+	__p1_pending_points = None
+	__p2_pending_points = None
+
 
 	# Decided to put the perspectives in State because they are more of a
 	# construct over the real deck state, and because they relate to the players
@@ -40,6 +41,8 @@ class State:
 				 player1s_turn,  # type: bool
 				 p1_points=0,  # type: int
 				 p2_points=0,  # type: int
+				 p1_pending_points=0,
+				 p2_pending_points=0,
 				 p1_perspective=None,
 				 p2_perspective=None
 				 ):
@@ -61,6 +64,9 @@ class State:
 
 		self.__p1_points = p1_points
 		self.__p2_points = p2_points
+
+		self.__p1_pending_points = p1_pending_points
+		self.__p2_pending_points = p2_pending_points
 
 		# If perspectives are not given in the constructor, they are computed:
 		# If phase 1, all cards that are not either in the player's hand or won already,
@@ -98,61 +104,68 @@ class State:
 		# Start with a copy of the current state
 		state = self.clone()  # type: State
 
-		# Change turns
-		state.__leads_turn = not state.__leads_turn
-
 		# If we find an invalid move, we set the __revoked class variable
 		# To the pid of the player who made the incorrect move, and return the state as is.
 		if not self.is_valid(move):
 			state.__revoked = self.whose_turn()
 			return state
 
+		if move[0] is not None:
+			# Change turns
+			state.__leads_turn = not state.__leads_turn
 
-		#Made set_trick return the trick so that we can cleanly assign it here
-		#because it ends up being used in both branches of the next if statement
-		trick = state.get_deck().set_trick(self.whose_turn(), move[0])
+			#Made set_trick return the trick so that we can cleanly assign it here
+			#because it ends up being used in both branches of the next if statement
+			trick = state.get_deck().set_trick(self.whose_turn(), move[0])
 
+			if move[1] is not None:
+				if Deck.get_suit(move[1]) == self.get_deck().get_trump_suit():
+					state.reserve_pending_points(self.whose_turn(), 40)
+				else:
+					state.reserve_pending_points(self.whose_turn(), 20)
 
-
-		#If it's now the lead's turn, i.e. a complete trick has been played
-		#Add evalMarriage() method
-		if state.__leads_turn:
-
-
-			# Evaluate the trick and store the winner in the leader variable
-			# trick = state.get_deck().get_trick()
-
-			leader = state.evaluate_trick(trick)
-
-			state.allocate_trick_points(leader, trick)
-
-
-			state.get_deck().put_trick_away(leader)
-
-			state.alter_perspective(trick, leader)
-
-			if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
-				# If all cards are exhausted, the winner of the last trick wins the game
-				state.set_points(leader, 66)
+			#If it's now the lead's turn, i.e. a complete trick has been played
+			#Add evalMarriage() method
+			if state.__leads_turn:
 
 
-			#Draw cards
-			#TODO: Clean up
-			if state.__phase == 1:
-				state.get_deck().draw_card(leader)
-				state.get_deck().draw_card(util.other(leader))
-				if state.get_deck().get_stock_size() == 0:
-					state.__phase = 2
+				# Evaluate the trick and store the winner in the leader variable
+				# trick = state.get_deck().get_trick()
+
+				leader = state.evaluate_trick(trick)
+
+				state.allocate_trick_points(leader, trick)
+
+
+				state.get_deck().put_trick_away(leader)
+
+				state.alter_perspective(trick, leader)
+
+				state.add_pending_points(leader)
+
+				if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
+					# If all cards are exhausted, the winner of the last trick wins the game
+					state.set_points(leader, 66)
+
+
+				#Draw cards
+				#TODO: Clean up
+				if state.__phase == 1:
+					state.get_deck().draw_card(leader)
+					state.get_deck().draw_card(util.other(leader))
+					if state.get_deck().get_stock_size() == 0:
+						state.__phase = 2
 
 
 
-			# Set player1s_turn according to the leader variable
-			state.__player1s_turn = True if leader == 1 else False
+				# Set player1s_turn according to the leader variable
+				state.__player1s_turn = True if leader == 1 else False
 
+			else:
+				state.__player1s_turn = not state.__player1s_turn
+				state.add_partial_trick_to_perspective(trick, state.whose_turn())
 		else:
-			state.__player1s_turn = not state.__player1s_turn
-			state.add_partial_trick_to_perspective(trick, state.whose_turn())
-
+			state.exchange_trump(move[1])
 
 		return state
 
@@ -203,15 +216,18 @@ class State:
 		"""
 
 		hand = self.get_deck().get_player_hand(self.whose_turn())
+		possible_moves = []
 
 		if self.__phase == 1 or self.whose_turn() == self.leader():
 			
-			possible_moves = []
 
 			for card in hand:
 				possible_moves.append((card, None))
 
-			return possible_moves
+			#If the player is able to exchange their trump Jack, then this option will be added to the possible moves.
+			if self.__deck.can_exchange(self.whose_turn()) and self.__phase == 1:
+				possible_moves.append((None, self.__deck.get_trump_jack_index()))
+			# return possible_moves
 
 		else:
 			opponent_card = self.get_deck().get_trick()[util.other(self.whose_turn())-1]
@@ -221,22 +237,31 @@ class State:
 				same_suit_hand_higher = [card for card in same_suit_hand if card < opponent_card]
 
 				if len(same_suit_hand_higher) > 0:
-					return [(x, None) for x in same_suit_hand_higher]
-					# return same_suit_hand_higher
-				return [(x, None) for x in same_suit_hand]
-				# return same_suit_hand
+					possible_moves = [(x, None) for x in same_suit_hand_higher]
+				else:
+					possible_moves = [(x, None) for x in same_suit_hand]
+
 
 			elif Deck.get_suit(opponent_card) != self.get_deck().get_trump_suit():
 				trump_hand = [card for card in hand if Deck.get_suit(card) == self.get_deck().get_trump_suit()]
 				if len(trump_hand) > 0:
-					return [(x, None) for x in trump_hand]
-					# return trump_hand
-			return [(x, None) for x in hand]
-			# return hand
+					possible_moves = [(x, None) for x in trump_hand]
+				else:
+					possible_moves = [(x, None) for x in hand]
+			else:
+				possible_moves = [(x, None) for x in hand]
+
+
+		#Add possible mariages to moves
+		possible_mariages = self.get_deck().get_possible_mariages(self.whose_turn())
+
+		possible_moves += possible_mariages
+
+		return possible_moves
 
 
 	def clone(self):
-		state = State(self.get_deck().clone(), self.__player1s_turn, self.__p1_points, self.__p2_points, list(self.__p1_perspective), list(self.__p2_perspective))
+		state = State(self.get_deck().clone(), self.__player1s_turn, self.__p1_points, self.__p2_points, self.__p1_pending_points, self.__p2_pending_points, list(self.__p1_perspective), list(self.__p2_perspective))
 		state.__phase = self.__phase
 		state.__leads_turn = self.__leads_turn
 		state.__revoked = self.__revoked
@@ -266,8 +291,8 @@ class State:
 		"""
 
 		rep = "The game is in phase: {}\n".format(self.__phase)
-		rep += "Player 1's points: {}\n".format(self.__p1_points)
-		rep += "Player 2's points: {}\n".format(self.__p2_points)
+		rep += "Player 1's points: {}, pending: {}\n".format(self.__p1_points, self.__p1_pending_points)
+		rep += "Player 2's points: {}, pending: {}\n".format(self.__p2_points, self.__p2_pending_points)
 		rep += "There are {} cards in the stock".format(self.get_deck().get_stock_size())
 
 		return rep
@@ -276,9 +301,8 @@ class State:
 	#TODO Marriages
 	#TODO Maybe change card_state array to something less terrible to compare to
 	def is_valid(self, move):
-		if self.__phase == 1 or self.__leads_turn:
+		if (self.__phase == 1 or self.__leads_turn) and move[0] is not None:
 			return (self.get_deck().get_card_state(move[0]) == ("P" + str(self.whose_turn()) + "H"))
-		
 		return move in self.moves()
 
 	def exchange_trump(self, trump_jack_index):
@@ -310,6 +334,22 @@ class State:
 			self.__p1_points += points
 		else:
 			self.__p2_points += points
+
+	def reserve_pending_points(self, player, points):
+		if player == 1:
+			self.__p1_pending_points += points
+		else:
+			self.__p2_pending_points += points
+
+
+	def add_pending_points(self, player):
+		if player == 1:
+			self.__p1_points += self.__p1_pending_points
+			self.__p1_pending_points = 0
+		else:
+			self.__p2_points += self.__p2_pending_points
+			self.__p2_pending_points = 0
+
 
 	def allocate_trick_points(self, winner, trick):
 		score = [11, 10, 4, 3, 2]

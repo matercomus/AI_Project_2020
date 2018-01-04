@@ -89,3 +89,43 @@ class TestState(TestCase):
 			raise RuntimeError("The decks are shuffled in the same way.")
 			print s.get_deck().get_card_states()
 			print s1.get_deck().get_card_states()
+
+	def test_exchange_visible(self):
+		s = State.generate(11)
+		moves = s.moves()
+		print s.get_deck().get_card_states()
+		print moves
+		print s.get_deck().get_trump_suit()
+
+	def test_exchange_move(self):
+		s = State.generate(11)
+		moves = s.moves()
+		s1 = s.next(moves[5])
+
+		if s.moves() == s1.moves():
+			raise RuntimeError("The available moves should have changed.")
+		if s.whose_turn() is not s1.whose_turn():
+			raise RuntimeError("The turns shifted. This should not be the case.")
+		if len(s.moves()) <= len(s1.moves()):
+			raise RuntimeError("The number of available moves should have decreased.")
+			#For finding states where a player can exchange (as long as mariage isn't enabled)
+		# for i in range(1,100):
+		# 	s = State.generate(i)
+		# 	moves = s.moves()
+		# 	if len(moves) > 5:
+		# 		print s.get_deck().get_card_states()
+		# 		print moves
+		# 		print s.get_deck().get_trump_suit()
+		# 		print i
+
+	def test_mariage_visible(self):
+		# for i in range(1,200):
+		# 	s = State.generate(i)
+		# 	moves = s.moves()
+		# 	# if
+		# 	print moves
+
+		s = State.generate(2)
+		moves = s.moves()
+		# if
+		print moves
