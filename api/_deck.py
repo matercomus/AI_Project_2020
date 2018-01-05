@@ -187,8 +187,6 @@ class Deck:
 		shuffled_cards = range(20)
 		rng.shuffle(shuffled_cards)
 
-		# shuffled_cards = rng.permutation(range(20))
-
 		card_state = [0]*20
 		stock = [] # Can be thought of as a stack data structure.
 

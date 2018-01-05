@@ -91,7 +91,6 @@ class State:
 		self.__p1_perspective = p1_perspective
 		self.__p2_perspective = p2_perspective
 
-	#TODO: Implement marriages
 	def next(self,
 			 move  # type: tuple(int, int)
 			 ):
@@ -209,7 +208,7 @@ class State:
 
 		return winner, points
 
-	# Add marriages, constrainst for 2nd phase
+	# Add constrainst for 2nd phase
 	def moves(self):
 		"""
 		:return: A list of all the legal moves that can be made by the player whose turn it is.
