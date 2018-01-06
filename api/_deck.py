@@ -85,7 +85,8 @@ class Deck:
 		return self.__trick
 
 	def can_exchange(self, player):
-		return self.__card_state[self.get_trump_jack_index()] == "P" + str(player) + "H"
+		# If game is in phase 1 and player has trump jack
+		return (self.get_stock_size() > 0) and (self.__card_state[self.get_trump_jack_index()] == "P" + str(player) + "H")
 
 	def get_player_hand(self, player_id):
 		search_term = "P1H" if player_id == 1 else "P2H"
@@ -150,38 +151,11 @@ class Deck:
 		self.__trick = [None, None]
 
 
-
-
-
-	# @staticmethod
-	# def generate():
-	#
-	# 	shuffled_cards = random.permutation(range(20))
-	#
-	# 	card_state = [0]*20
-	# 	stock = [] # Can be thought of as a stack data structure.
-	#
-	# 	# Three separate for loops assign a state to the cards in the
-	# 	# shuffled deck depending on their position. The indices of the
-	# 	# stock cards are pushed onto the stock stack to save their order.
-	# 	for i in range(10):
-	# 		card_state[shuffled_cards[i]] = "S"
-	# 		stock.append(shuffled_cards[i])
-	#
-	# 	for i in range(10, 15):
-	# 		card_state[shuffled_cards[i]] = "P1H"
-	#
-	# 	for i in range(15, 20):
-	# 		card_state[shuffled_cards[i]] = "P2H"
-	#
-	# 	trump_suit = Deck.get_suit(shuffled_cards[0])
-	#
-	# 	return Deck(card_state, stock, trump_suit)
-
 	#Look into overloading this function as well
 	@staticmethod
-	def generate(id):
-		if id is 0:
+	def generate(id=None):
+		
+		if id is None:
 			id = random.randint(0, 100000)
 
 		rng = random.Random(id)

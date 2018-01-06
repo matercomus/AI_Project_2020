@@ -57,8 +57,8 @@ class TestState(TestCase):
 
 	def test_game_full(self):
 		wins = 0
-		for i in range(1000):
-			state = State.generate(0)
+		for i in range(10000):
+			state = State.generate()
 			while not state.finished():
 				moves = state.moves()
 				# print state.get_deck().get_card_states()
@@ -83,8 +83,8 @@ class TestState(TestCase):
 				print s1.get_deck().get_card_states()
 
 	def test_seed_different(self):
-		s = State.generate(0)
-		s1 = State.generate(0)
+		s = State.generate()
+		s1 = State.generate()
 		if s.get_deck().get_card_states() == s1.get_deck().get_card_states():
 			raise RuntimeError("The decks are shuffled in the same way.")
 			print s.get_deck().get_card_states()

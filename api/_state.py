@@ -1,16 +1,17 @@
 from api import util, Deck
 import random
 
+#DONE
+# Representation of the swap move in possible moves
+# Marriages - Pending points
+
 
 # TODO:
-# V Representation of the swap move in possible moves
 # Change all method calls of class variables from within the class to the variables themselves
-# V Marriages - Pending points
 # Player perspectives, add mariages and trump exchange to perspective
 # Start at phase 1/2
 # Bully, rdeep bots
-# Trump exchange can only be done when no card has yet ben played, this will have to be fixed (we could leave it as is
-# since the code could get very messy otherwise)
+# IMPORTANT: MAKE PRIVATE METHODS
 
 # Add constants for player 1 and player 2 so that we don't have to use 1 and 2
 
@@ -114,81 +115,68 @@ class State:
 
 		# If we find an invalid move, we set the __revoked class variable
 		# To the pid of the player who made the incorrect move, and return the state as is.
-		if not self.is_valid(move):
-			state.__revoked = self.whose_turn()
+		if not state.is_valid(move):
+			state.__revoked = state.whose_turn()
 			return state
 
-		#If move is not a trump exchange
-		#Might be cleaner code to have something like:
-		#If move[0] is None:
-		#	state.exchange_trump(...)
-		#	return state
-		#Then put normal move handling code here
-		#So that we don't end up with the pyramid structure
-		#Perhaps even have exchange_trump(...) return the state instance
-		if move[0] is not None:
-			# Change turns
-			state.__leads_turn = not state.__leads_turn
-
-			#Made set_trick return the trick so that we can cleanly assign it here
-			#because it ends up being used in both branches of the next if statement
-			trick = state.get_deck().set_trick(self.whose_turn(), move[0])
-
-			#URGENT: Update perspective here, because married card has to be shown
-			#URGENT: Only leading player can meld a marriage, need to restructure
-			# code to take this into account. Suggesting the above solution.
-			# If is_valid is altered to take this into account, this might not be
-			# a problem though
-			if move[1] is not None:
-				if Deck.get_suit(move[1]) == self.get_deck().get_trump_suit():
-					state.reserve_pending_points(self.whose_turn(), 40)
-				else:
-					state.reserve_pending_points(self.whose_turn(), 20)
-
-			#If it's now the lead's turn, i.e. a complete trick has been played
-			#Add evalMarriage() method
-			if state.__leads_turn:
-
-
-				# Evaluate the trick and store the winner in the leader variable
-				# trick = state.get_deck().get_trick()
-
-				leader = state.evaluate_trick(trick)
-
-				state.allocate_trick_points(leader, trick)
-
-
-				state.get_deck().put_trick_away(leader)
-
-				state.alter_perspective(trick, leader)
-
-				#As said below, might want to merge this with allocate_trick_points
-				#To avoid so many method calls here.
-				state.add_pending_points(leader)
-
-				if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
-					# If all cards are exhausted, the winner of the last trick wins the game
-					state.set_points(leader, 66)
-
-
-				#Draw cards
-				#TODO: Clean up
-				if state.__phase == 1:
-					state.get_deck().draw_card(leader)
-					state.get_deck().draw_card(util.other(leader))
-					if state.get_deck().get_stock_size() == 0:
-						state.__phase = 2
-
-
-
-				# Set player1s_turn according to the leader variable
-				state.__player1s_turn = True if leader == 1 else False
-
-			else:
-				state.__player1s_turn = not state.__player1s_turn
-				state.add_partial_trick_to_perspective(trick, state.whose_turn())
-		else:
+		# If move is a trump exchange
+		if move[0] is None:
+			# TODO: ADD TO PERSPECTIVE
 			state.exchange_trump(move[1])
+			return state
+
+		# Change turns
+		state.__leads_turn = not state.__leads_turn
+
+		#Made set_trick return the trick so that we can cleanly assign it here
+		#because it ends up being used in both branches of the next if statement
+		trick = state.get_deck().set_trick(state.whose_turn(), move[0])
+
+		if move[1] is not None:
+
+			state.add_to_perspective(util.other(state.whose_turn()), move[1], "P" + str(state.whose_turn()) + "H")
+
+			if Deck.get_suit(move[1]) == state.get_deck().get_trump_suit():
+				state.reserve_pending_points(state.whose_turn(), 40)
+			else:
+				state.reserve_pending_points(state.whose_turn(), 20)
+
+		#If it's now the lead's turn, i.e. a complete trick has been played
+		#Add evalMarriage() method
+		if state.__leads_turn:
+
+			# Evaluate the trick and store the winner in the leader variable
+			# trick = state.get_deck().get_trick()
+
+			leader = state.evaluate_trick(trick)
+
+			state.allocate_trick_points(leader, trick)
+
+			state.get_deck().put_trick_away(leader)
+
+			state.alter_perspective(trick, leader)
+
+			if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
+				# If all cards are exhausted, the winner of the last trick wins the game
+				state.set_points(leader, 66)
+
+
+			#Draw cards
+			#TODO: Clean up
+			if state.__phase == 1:
+				state.get_deck().draw_card(leader)
+				state.get_deck().draw_card(util.other(leader))
+				if state.get_deck().get_stock_size() == 0:
+					state.__phase = 2
+
+
+
+			# Set player1s_turn according to the leader variable
+			state.__player1s_turn = True if leader == 1 else False
+
+		else:
+			state.__player1s_turn = not state.__player1s_turn
+			state.add_partial_trick_to_perspective(trick, state.whose_turn())
 
 		return state
 
@@ -232,8 +220,7 @@ class State:
 
 		return winner, points
 
-	# Add constrainst for 2nd phase
-	# We already did
+
 	def moves(self):
 		"""
 		:return: A list of all the legal moves that can be made by the player whose turn it is.
@@ -249,7 +236,7 @@ class State:
 				possible_moves.append((card, None))
 
 			#If the player is able to exchange their trump Jack, then this option will be added to the possible moves.
-			if self.__deck.can_exchange(self.whose_turn()) and self.__phase == 1:
+			if self.__deck.can_exchange(self.whose_turn()):
 				possible_moves.append((None, self.__deck.get_trump_jack_index()))
 			# return possible_moves
 
@@ -277,10 +264,10 @@ class State:
 
 
 		#Add possible mariages to moves
-		#Needs to be moved up so this is only included in the moves of the lead player
-		possible_mariages = self.get_deck().get_possible_mariages(self.whose_turn())
-
-		possible_moves += possible_mariages
+		#Marriages can only be melded by leader
+		if self.whose_turn() == self.leader():
+			possible_mariages = self.get_deck().get_possible_mariages(self.whose_turn())
+			possible_moves += possible_mariages
 
 		return possible_moves
 
@@ -293,23 +280,26 @@ class State:
 
 		return state
 
-	# @staticmethod
-	# def generate():
-	# 	deck = Deck.generate()
-	# 	player1s_turn = random.choice([True, False])
-	# 	return State(deck, player1s_turn)
 
-	#rng not used really, also want to overload this function and deck.generate
-	#so that they can be called without parameters as well
 	@staticmethod
-	def generate(id):
-		if (id != None):
-			rng = random.Random(id)
-		else:
-			rng = random
+	def generate(id=None, phase=1):
+
+		if id is None:
+			id = random.randint(0, 100000)
+		rng = random.Random(id)
 		deck = Deck.generate(id)
 		player1s_turn = rng.choice([True, False])
-		return State(deck, player1s_turn)
+
+		state = State(deck, player1s_turn)
+
+		if phase == 2:
+			while state.__phase == 1:
+				if state.finished():
+					return State.generate(id+1, phase) # Father forgive me
+
+				state = state.next(rng.choice(state.moves()))
+
+		return state
 
 	def __repr__(self):
 		# type: () -> str
@@ -325,11 +315,10 @@ class State:
 		return rep
 
 
-	#TODO Marriages
 	#TODO Maybe change card_state array to something less terrible to compare to
-	#Need to add a check for validity of marriage attempts here
+	#Maybe move to deck
 	def is_valid(self, move):
-		if (self.__phase == 1 or self.__leads_turn) and move[0] is not None:
+		if (self.__phase == 1 or self.__leads_turn) and move[0] is not None and move[1] is None:
 			return (self.get_deck().get_card_state(move[0]) == ("P" + str(self.whose_turn()) + "H"))
 		return move in self.moves()
 
@@ -390,6 +379,13 @@ class State:
 		total_score += score[trick[1] % 5]
 
 		self.add_points(winner, total_score)
+		self.add_pending_points(winner)
+
+	def add_to_perspective(self, player, index, state):
+		if player == 1:
+			self.__p1_perspective[index] = state
+		else:
+			self.__p2_perspective[index] = state
 
 	#Alters perspective with only a partial trick
 	def add_partial_trick_to_perspective(self, trick, player):

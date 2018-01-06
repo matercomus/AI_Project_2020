@@ -22,7 +22,7 @@ def call_engine(options):
 
     # Generate or load the map
     # TODO: PHASES
-    state = State.generate(0)
+    state = State.generate(phase=int(options.phase))
 
     if not options.quiet:
         # print('-- Using map with id {} '.format(id))
