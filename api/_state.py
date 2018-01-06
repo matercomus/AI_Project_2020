@@ -6,13 +6,15 @@ import random
 # V Representation of the swap move in possible moves
 # Change all method calls of class variables from within the class to the variables themselves
 # V Marriages - Pending points
-# Player perspectives
+# Player perspectives, add mariages and trump exchange to perspective
 # Start at phase 1/2
 # Bully, rdeep bots
+# Trump exchange can only be done when no card has yet ben played, this will have to be fixed (we could leave it as is
+# since the code could get very messy otherwise)
 
 # Add constants for player 1 and player 2 so that we don't have to use 1 and 2
 
-# Following the prevvious idea, could alter the card states to hold state codes that would be kept
+# Following the previous idea, could alter the card states to hold state codes that would be kept
 # in static class variables. Actually I think this is something we need to do before we go to production
 
 # Maybe turn __phase into a boolean, since it can only take two values. Would be cleaner
