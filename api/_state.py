@@ -109,6 +109,14 @@ class State:
 			state.__revoked = self.whose_turn()
 			return state
 
+		#If move is not a trump exchange
+		#Might be cleaner code to have something like:
+		#If move[0] is None:
+		#	state.exchange_trump(...)
+		#	return state
+		#Then put normal move handling code here
+		#So that we don't end up with the pyramid structure
+		#Perhaps even have exchange_trump(...) return the state instance
 		if move[0] is not None:
 			# Change turns
 			state.__leads_turn = not state.__leads_turn
@@ -117,6 +125,11 @@ class State:
 			#because it ends up being used in both branches of the next if statement
 			trick = state.get_deck().set_trick(self.whose_turn(), move[0])
 
+			#URGENT: Update perspective here, because married card has to be shown
+			#URGENT: Only leading player can meld a marriage, need to restructure
+			# code to take this into account. Suggesting the above solution.
+			# If is_valid is altered to take this into account, this might not be
+			# a problem though
 			if move[1] is not None:
 				if Deck.get_suit(move[1]) == self.get_deck().get_trump_suit():
 					state.reserve_pending_points(self.whose_turn(), 40)
@@ -140,6 +153,8 @@ class State:
 
 				state.alter_perspective(trick, leader)
 
+				#As said below, might want to merge this with allocate_trick_points
+				#To avoid so many method calls here.
 				state.add_pending_points(leader)
 
 				if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
@@ -209,6 +224,7 @@ class State:
 		return winner, points
 
 	# Add constrainst for 2nd phase
+	# We already did
 	def moves(self):
 		"""
 		:return: A list of all the legal moves that can be made by the player whose turn it is.
@@ -252,6 +268,7 @@ class State:
 
 
 		#Add possible mariages to moves
+		#Needs to be moved up so this is only included in the moves of the lead player
 		possible_mariages = self.get_deck().get_possible_mariages(self.whose_turn())
 
 		possible_moves += possible_mariages
@@ -273,6 +290,8 @@ class State:
 	# 	player1s_turn = random.choice([True, False])
 	# 	return State(deck, player1s_turn)
 
+	#rng not used really, also want to overload this function and deck.generate
+	#so that they can be called without parameters as well
 	@staticmethod
 	def generate(id):
 		if (id != None):
@@ -299,6 +318,7 @@ class State:
 
 	#TODO Marriages
 	#TODO Maybe change card_state array to something less terrible to compare to
+	#Need to add a check for validity of marriage attempts here
 	def is_valid(self, move):
 		if (self.__phase == 1 or self.__leads_turn) and move[0] is not None:
 			return (self.get_deck().get_card_state(move[0]) == ("P" + str(self.whose_turn()) + "H"))
@@ -352,7 +372,7 @@ class State:
 			self.__p2_points += self.__p2_pending_points
 			self.__p2_pending_points = 0
 
-
+	# Maybe good to merge this with add_pending_points
 	def allocate_trick_points(self, winner, trick):
 		score = [11, 10, 4, 3, 2]
 

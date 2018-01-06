@@ -178,6 +178,7 @@ class Deck:
 	#
 	# 	return Deck(card_state, stock, trump_suit)
 
+	#Look into overloading this function as well
 	@staticmethod
 	def generate(id):
 		if id is 0:
