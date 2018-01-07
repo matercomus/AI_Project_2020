@@ -33,7 +33,7 @@ class Bot:
 
 		moves_trump_suit = []
 		for index, move in enumerate(moves):
-			if move[0] is not None and Deck.get_suit(move[0]) == state.get_deck().get_trump_suit():
+			if move[0] is not None and Deck.get_suit(move[0]) == state.get_trump_suit():
 				moves_trump_suit.append(move)
 
 		if len(moves_trump_suit) > 0:
@@ -41,10 +41,10 @@ class Bot:
 			chosen_move = moves_trump_suit[0]
 			return chosen_move
 
-		if state.get_opponents_card() is not None:
+		if state.get_opponents_played_card() is not None:
 			moves_same_suit = []
 			for index, move in enumerate(moves):
-				if move[0] is not None and Deck.get_suit(move[0]) == Deck.get_suit(state.get_opponents_card()):
+				if move[0] is not None and Deck.get_suit(move[0]) == Deck.get_suit(state.get_opponents_played_card()):
 					moves_same_suit.append(move)
 
 			if len(moves_same_suit) > 0:
