@@ -14,7 +14,6 @@ import random
 
 # Maybe turn __phase into a boolean, since it can only take two values. Would be cleaner
 
-
 class State:
 	__deck = None  # type: Deck
 
@@ -87,7 +86,6 @@ class State:
 
 		self.__p1_perspective = p1_perspective
 		self.__p2_perspective = p2_perspective
-
 
 	def next(self,
 			 move  # type: tuple(int, int)
@@ -237,7 +235,6 @@ class State:
 
 		return winner, points
 
-
 	def moves(self):
 		"""
 		:return: A list of all the legal moves that can be made by the player whose turn it is.
@@ -296,7 +293,6 @@ class State:
 
 		return possible_moves
 
-
 	def clone(self):
 		"""
 		:return: Returns a deep copy of the current state
@@ -307,7 +303,6 @@ class State:
 		state.__revoked = self.__revoked
 
 		return state
-
 
 	@staticmethod
 	def generate(id=None, phase=1):
@@ -334,7 +329,6 @@ class State:
 
 		return state
 
-
 	def __repr__(self):
 		# type: () -> str
 		"""
@@ -348,7 +342,6 @@ class State:
 		rep += "The cards currently down are {}".format(self.__get_deck().get_trick())
 
 		return rep
-
 
 	def is_valid(self, move):
 		"""
@@ -407,31 +400,61 @@ class State:
 		return self.__deck.get_trump_suit()
 
 	def __exchange_trump(self, trump_jack_index):
+		"""
+		Exchanges the trump card with the trump Jack.
+
+		:param trump_jack_index: An integer signifying the index of the trump Jack
+		"""
 		self.__deck.exchange_trump(trump_jack_index)
 
 	def __get_deck(self):
+		"""
+		:return: The deck in the state
+		"""
 		return self.__deck
 
 	def __set_points(self, player, points):
+		"""
+		Sets the point count of the specified player to the specified points
+
+		:param player: An integer signifying the player id
+		:param player: An integer signifying the point count to player's points are set to
+		"""
 		if player == 1:
 			self.__p1_points = points
 		else:
 			self.__p2_points = points
 
 	def __add_points(self, player, points):
+		"""
+		Adds the specified points to the point count of the specified player
+
+		:param player: An integer signifying the player id
+		:param player: An integer signifying the points to be added to the point count of the player
+		"""
 		if player == 1:
 			self.__p1_points += points
 		else:
 			self.__p2_points += points
 
 	def __reserve_pending_points(self, player, points):
+		"""
+		Adds the specified pending points to the pending point count of the specified player
+
+		:param player: An integer signifying the player id
+		:param player: An integer signifying the pending points to be added to the pending point count of the player
+		"""
 		if player == 1:
 			self.__p1_pending_points += points
 		else:
 			self.__p2_pending_points += points
 
-
 	def __add_pending_points(self, player):
+		"""
+		Adds the pending points of the specified player to that player's points
+
+		:param player: An integer signifying the player id
+		"""
 		if player == 1:
 			self.__p1_points += self.__p1_pending_points
 			self.__p1_pending_points = 0
@@ -439,34 +462,56 @@ class State:
 			self.__p2_points += self.__p2_pending_points
 			self.__p2_pending_points = 0
 
-	# Maybe good to merge this with __add_pending_points
 	def __allocate_trick_points(self, winner, trick):
+		"""
+		:param winner: The player id of the player who won the trick
+		:param trick: A tuple signifying the trick which is used to determine how many points the winner is allocated
+		"""
+
+		# A list containing points of the cards of by rank
 		score = [11, 10, 4, 3, 2]
 
-		# TODO: CLEAN UP, ADD EXPLANATION
-		total_score = score[trick[0] % 5]
-		total_score += score[trick[1] % 5]
+		rank_first_card_trick = trick[0] % 5
+		rank_second_card_trick = trick[1] % 5
+
+		total_score = score[rank_first_card_trick]
+		total_score += score[rank_second_card_trick]
 
 		self.__add_points(winner, total_score)
 		self.__add_pending_points(winner)
 
-	def __add_to_perspective(self, player, index, state):
-		if player == 1:
-			self.__p1_perspective[index] = state
-		else:
-			self.__p2_perspective[index] = state
+	def __add_to_perspective(self, player, index, card_state):
+		"""
+		Changes the specified player's perspective of the card at the given index to the given card state
 
-	#Alters perspective with only a partial trick
+		:param player: An integer signifying the player id
+		:param index: An integer signifying the index of a card
+		:param card_state: A string signifying the state of the card
+		"""
+		if player == 1:
+			self.__p1_perspective[index] = card_state
+		else:
+			self.__p2_perspective[index] = card_state
+
 	def __add_partial_trick_to_perspective(self, trick, player):
+		"""
+		Adds the card in the trick to the specified player's perspective
+
+		:param trick: A tuple signifying the trick which cards are revealed to the player
+		:param player: An integer signifying the player id
+		"""
 		if player == 1:
 			self.__p1_perspective[trick[util.other(player) - 1]] = "P2H"
 		else:
 			self.__p2_perspective[trick[util.other(player) - 1]] = "P1H"
 
-
-	#Alters perpsective with a complete trick
 	def __alter_perspective(self, trick, winner):
+		"""
+		Adds the cards in the trick to both players' perspective as in the won cards pile of the specified winner
 
+		:param trick: A tuple signifying the trick which cards are revealed to both players
+		:param winner: An integer signifying the winner's id
+		"""
 		if winner == 1:
 			self.__p1_perspective[trick[0]] = self.__p1_perspective[trick[1]] = "P1W"
 			self.__p2_perspective[trick[0]] = self.__p2_perspective[trick[1]] = "P1W"
@@ -475,10 +520,13 @@ class State:
 			self.__p1_perspective[trick[0]] = self.__p1_perspective[trick[1]] = "P2W"
 			self.__p2_perspective[trick[0]] = self.__p2_perspective[trick[1]] = "P2W"
 
-
-
-	#Evaluate a complete trick, assign points and return the pid of the winner
 	def __evaluate_trick(self, trick):
+		"""
+		Evaluates who the winner of the specified trick is and returns it
+
+		:param trick: A tuple signifying the trick which is evaluated
+		:return: The winner's id as an integer
+		"""
 		if len(trick) != 2:
 			raise RuntimeError("Incorrect trick format. List of length 2 needed.")
 		if trick[0] is None or trick[1] is None:
