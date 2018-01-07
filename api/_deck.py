@@ -62,51 +62,58 @@ class Deck:
 	def get_suit(index):
 		return Deck.__SUITS[int(index/5)]
 
+	# Returns a list of all the cards' states
 	def get_card_states(self):
 		return list(self.__card_state)
 
+	# Returns the state of the card at the specified index
 	def get_card_state(self, index):
 		return self.__card_state[index]
 
+	# Returns a list of all cards currently in the stock
 	def get_stock(self):
 		return self.__stock
 
+	# Returns the number of cards currently in the stock
 	def get_stock_size(self):
 		return len(self.__stock)
 
+	# Sets the card at the specified index to the specified state
 	def set_card(self, index, state):
 		self.__card_state[index] = state
 
+	# Returns a tuple containing the card indices of the cards currently part of the trick. The index of a card will be
+	# set to None if no card is put down on that side of the trick. TODO: strange wording
 	def get_trick(self):
 		return list(self.__trick)
 
+	# Places card in the trick in the position of the specified player. Returns the resulting trick.
 	def set_trick(self, player, card):
 		self.__trick[player-1] = card
 		return self.__trick
 
+	# Returns whether the specified player is able to exchange the trump card for its trump jack.
 	def can_exchange(self, player):
 		# If game is in phase 1 and player has trump jack
 		return (self.get_stock_size() > 0) and (self.__card_state[self.get_trump_jack_index()] == "P" + str(player) + "H")
 
-	def get_player_hand(self, player_id):
-		search_term = "P1H" if player_id == 1 else "P2H"
+	# Returns a list of the cards in the hand of the player that is specified.
+	def get_player_hand(self, player):
+		search_term = "P1H" if player == 1 else "P2H"
 		return [i for i, x in enumerate(self.__card_state) if x == search_term]
 
+	# Returns the suit of the trump card.
 	def get_trump_suit(self):
 		return self.__trump_suit
 
+	# Swaps places of the trump card with the trump Jack.
 	def exchange_trump(self, trump_jack_index):
-
-		# trump_jack_index = self.get_trump_jack_index()
-
 		self.__card_state[self.__stock[0]] = self.__card_state[trump_jack_index]
-
 		self.__card_state[trump_jack_index] = "S"
-
 		self.__stock[0] = trump_jack_index
 
+	# Returns the index of the Jack of the trump suit.
 	def get_trump_jack_index(self):
-
 		#The Aces of different suits are always 5 apart from another Ace
 		trump_ace_index = self.__SUITS.index(self.__trump_suit) * 5
 
@@ -115,6 +122,7 @@ class Deck:
 
 		return trump_jack_index
 
+	# Returns a list of possible marriages for the specified player.
 	def get_possible_mariages(self, player):
 		possible_mariages = []
 		player_hand = self.get_player_hand(player)
@@ -134,6 +142,7 @@ class Deck:
 
 		return possible_mariages
 
+	# Takes the top card of the stock and places it in the specified player's hand.
 	def draw_card(self, player):
 		if self.get_stock_size() == 0:
 			raise RuntimeError('Stack is empty.')
@@ -142,6 +151,7 @@ class Deck:
 		else:
 			self.__card_state[self.__stock.pop()] = "P2H"
 
+	# Puts the cards in the trick in the specified winner's pile of won cards. After this operation the trick is emptied.
 	def put_trick_away(self, winner):
 		if winner == 1:
 			self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = "P1W"
@@ -152,6 +162,7 @@ class Deck:
 
 
 	#Look into overloading this function as well
+	# Generates a new deck based on a seed. If no seed is given, a random seed in generated.
 	@staticmethod
 	def generate(id=None):
 		
