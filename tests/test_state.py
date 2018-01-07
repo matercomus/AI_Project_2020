@@ -4,6 +4,36 @@ from api import Deck, State
 
 
 class TestState(TestCase):
+
+
+	#Use seed to deterministically generate a state for which
+	#we know what should happen. Uses seed=50
+	def test_deterministic(self):
+		state = State.generate(50)
+		self.assertEqual(state.get_deck().get_card_states(), ['P1H', 'P1H', 'S', 'S', 'P2H', 'P2H', 'S', 'P2H', 'P1H', 'P2H', 'S', 'P2H', 'S', 'S', 'P1H', 'S', 'P1H', 'S', 'S', 'S'])
+		self.assertEqual(state.get_perspective(1)) = ['P1H', 'P1H', 'U', 'U', 'U', 'U', 'U', 'U', 'P1H', 'U', 'S', 'U', 'U', 'U', 'P1H', 'U', 'P1H', 'U', 'U', 'U']
+		self.assertEqual(state.get_perspective(2)) = ['U', 'U', 'U', 'U', 'P2H', 'P2H', 'U', 'P2H', 'U', 'P2H', 'S', 'P2H', 'U', 'U', 'U', 'U', 'U', 'U', 'U', 'U']
+		
+		#Test trump jack exchange
+		#Maybe needs to change if order of moves is altered
+		self.assertEqual(state.whose_turn(), 1)
+		self.assertEqual(state.get_points(1), 0)
+		self.assertEqual(state.get_points(2), 0)
+		self.assertEqual(state.get_pending_points(1), 0)
+		self.assertEqual(state.get_pending_points(2), 0)
+
+		state = state.next(state.moves().pop())
+		self.assertEqual(state.whose_turn(), 1)
+		self.assertEqual(state.get_deck(), ['P1H', 'P1H', 'S', 'S', 'P2H', 'P2H', 'S', 'P2H', 'P1H', 'P2H', 'P1H', 'P2H', 'S', 'S', 'S', 'S', 'P1H', 'S', 'S', 'S'])
+		self.assertEqual(state.get_perspective(1), ['P1H', 'P1H', 'U', 'U', 'U', 'U', 'U', 'U', 'P1H', 'U', 'P1H', 'U', 'U', 'U', 'S', 'U', 'P1H', 'U', 'U', 'U'])
+		self.assertEqual(state.get_perspective(2), ['U', 'U', 'U', 'U', 'P2H', 'P2H', 'U', 'P2H', 'U', 'P2H', 'P1H', 'P2H', 'U', 'U', 'S', 'U', 'U', 'U', 'U', 'U'])
+		
+		self.assertEqual(state.get_points(1), 0)
+		self.assertEqual(state.get_points(2), 0)
+		self.assertEqual(state.get_pending_points(1), 0)
+		self.assertEqual(state.get_pending_points(2), 0)
+
+
 	def test_next(self):
 		# TODO: add sth?
 		pass
@@ -57,7 +87,7 @@ class TestState(TestCase):
 
 	def test_game_full(self):
 		wins = 0
-		for i in range(10000):
+		for i in range(100000):
 			state = State.generate()
 			while not state.finished():
 				moves = state.moves()

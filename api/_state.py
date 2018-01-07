@@ -122,17 +122,22 @@ class State:
 		# If move is a trump exchange
 		if move[0] is None:
 			# TODO: ADD TO PERSPECTIVE
+
+			# state.add_to_perspective()
+
 			state.exchange_trump(move[1])
 			return state
 
 		# Change turns
 		state.__leads_turn = not state.__leads_turn
 
-		#Made set_trick return the trick so that we can cleanly assign it here
-		#because it ends up being used in both branches of the next if statement
+		#Add the given move to the trick, store the whole trick in a variable
 		trick = state.get_deck().set_trick(state.whose_turn(), move[0])
 
 		if move[1] is not None:
+
+			if state.__leads_turn:
+				raise RuntimeError("Marriage was attempted to be melded by non-leading player")
 
 			state.add_to_perspective(util.other(state.whose_turn()), move[1], "P" + str(state.whose_turn()) + "H")
 
@@ -141,42 +146,43 @@ class State:
 			else:
 				state.reserve_pending_points(state.whose_turn(), 20)
 
-		#If it's now the lead's turn, i.e. a complete trick has been played
-		#Add evalMarriage() method
-		if state.__leads_turn:
-
-			# Evaluate the trick and store the winner in the leader variable
-			# trick = state.get_deck().get_trick()
-
-			leader = state.evaluate_trick(trick)
-
-			state.allocate_trick_points(leader, trick)
-
-			state.get_deck().put_trick_away(leader)
-
-			state.alter_perspective(trick, leader)
-
-			if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
-				# If all cards are exhausted, the winner of the last trick wins the game
-				state.set_points(leader, 66)
-
-
-			#Draw cards
-			#TODO: Clean up
-			if state.__phase == 1:
-				state.get_deck().draw_card(leader)
-				state.get_deck().draw_card(util.other(leader))
-				if state.get_deck().get_stock_size() == 0:
-					state.__phase = 2
-
-
-
-			# Set player1s_turn according to the leader variable
-			state.__player1s_turn = True if leader == 1 else False
-
-		else:
+		#If it is not the lead's turn, i.e. currently the trick is incomplete
+		if not state.__leads_turn:
 			state.__player1s_turn = not state.__player1s_turn
 			state.add_partial_trick_to_perspective(trick, state.whose_turn())
+			return state
+
+		# At this point we know that it is the lead's turn and that a complete
+		# trick from the previous hand can be evaluated.
+
+		# Evaluate the trick and store the winner in the leader variable
+		# trick = state.get_deck().get_trick()
+		leader = state.evaluate_trick(trick)
+
+		state.allocate_trick_points(leader, trick)
+
+		state.get_deck().put_trick_away(leader)
+
+		state.alter_perspective(trick, leader)
+
+		if len(state.get_deck().get_player_hand(1)) == 0 and not state.finished():
+			# If all cards are exhausted, the winner of the last trick wins the game
+			state.set_points(leader, 66)
+
+
+		#Draw cards
+		#TODO: Clean up
+		if state.__phase == 1:
+			state.get_deck().draw_card(leader)
+			state.get_deck().draw_card(util.other(leader))
+			if state.get_deck().get_stock_size() == 0:
+				state.__phase = 2
+
+
+
+		# Set player1s_turn according to the leader variable
+		state.__player1s_turn = True if leader == 1 else False
+
 
 		return state
 
@@ -354,6 +360,9 @@ class State:
 			self.__p1_points += points
 		else:
 			self.__p2_points += points
+
+	def get_pending_points(self, player):
+		return self.__p1_pending_points if player == 1 else self.__p2_pending_points
 
 	def reserve_pending_points(self, player, points):
 		if player == 1:
