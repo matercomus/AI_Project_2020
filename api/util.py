@@ -51,3 +51,8 @@ def load_player(name, classname='Bot'):
         sys.exit()
 
     return player
+
+def ratio_points(state, player):
+	if state.get_points(player) + state.get_points(other(player)) != 0:
+		return state.get_points(player) / float((state.get_points(player) + state.get_points(other(player))))
+	return 0
