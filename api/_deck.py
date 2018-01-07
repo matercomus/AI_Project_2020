@@ -122,6 +122,12 @@ class Deck:
 
 		return trump_jack_index
 
+	# Returns index of trump card in stock if still in phase 1, otherwise None
+	def get_trump_card_index(self):
+		if self.get_stock_size() > 0:
+			return self.__stock[0]
+		return None
+
 	# Returns a list of possible marriages for the specified player.
 	def get_possible_mariages(self, player):
 		possible_mariages = []
