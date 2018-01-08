@@ -12,27 +12,11 @@ Your job is to make a bot that will play this game.
 
 ## Technical requirements
 
-You require a working python 2.7 environment and a good text editor or an IDE. If 
-that's enough information, read on below. If you're not quite sure how to go
-about this, see the installation tutorial on Blackboard. There will be a hands-on
-session in the first week to help you get started. 
-
-## The rules of planetwars
-
-The rules are encoded in the engine, spefically in the methods moves() and next() 
-of the [state object](https://github.com/intelligent-systems-course/planet-wars/blob/master/api/_state.py).
-
-Here's a quick summary:
-
- * The aim of the game is to eradicate all planets and ships of the opposing player.
- * The two players move one at a time.
- * A move is made by sending ships from one planet (the source) to another (the destination).
- * A move always results in half the source planet's ships travelling towards the destination.
- * A collection of ships in transit is called a _fleet_.
- * If, on arrival, the target planet is _neutral_ (not owned by any player) or owned by the opponent, the fleet attacks the planet: one ship in the fleet cancels out against one ship on the planet. If the fleet has ships left over and the planet doesn't, the fleet's owner takes over ownership of the planet, and the remainder of the fleet becomes stationed at the planet.
- * If, on arrival, the target planet is owned by the owner of the fleet, the fleet reinforces the planet: the ships in the fleet are added to those already at the planet.
- * Planets occasionally produce ships; the bigger the planet the faster they produce ships. A planet of size 1/n, produces a ship every n turns. The biggest planet size is 1, which produces a ship every turn.
- * The standard playing field has size planets. Each player starts with one planet of size 1, at opposite corners of the playing field, cotaining 100 ships. The other four planets are distributed randomly. For the generating code, look at the function [State.generate](https://github.com/intelligent-systems-course/planet-wars/blob/master/api/_state.py#L440)
+You require a working Python 2.7 environment and a good text editor or an IDE. You can download Python 2.7 for your machine from the following sources:  
+* [Windows](https://www.python.org/downloads/windows/)  
+* [MacOS](https://www.python.org/downloads/mac-osx/)  
+* [Linux](https://www.python.org/downloads/source/)
+* [Other](https://www.python.org/download/other/)
 
 ### Python knowledge
 
@@ -69,15 +53,10 @@ Advanced python, but they occur occasionally in the code. Useful to know.
 
 Here are some quick use cases and solutions to help you get a feel for the code.
 
-### Get the size of a planet
+### Get the size of the stock
 Let 'state' be the state you're given and let's say you want the size of the i'th planet. Then the following a should do the trick:
 ```python
-size_of planet_i = state.planets()[i].size()
-```
-Or, to print the size of every planet:
-```python
-for planet in state.planets():
-    print 'planet {} has size {}.'.format(planet.id(), planet.size())
+size_of stock = state.get_stock_size()
 ```
 
 ### Find out if I'm player 1 or 2
@@ -86,18 +65,15 @@ for planet in state.planets():
 me = state.whose_turn()
 ```
 
-### Print the coordinates of all fleets source and target planet
+### Print the cards in your hand
 
 ```python
-for i, fleet in enumerate(state.fleets()):
+cards_hand = state.hand()
+for i, card in enumerate(cards_hand):
 
-    source = fleet.source()
-    target = fleet.target()
+    rank, suit = util.get_card_name(card)
     
-    source_crds = source.coords()
-    target crds = target.coords()
-    
-    print('Fleet {} is moving from {} to {}'.format(i, source_crds, target_crds))
+    print('Card {} in the hand is {} of {}'.format(i, rank,suit))
 ```
 
 ### Draw a PNG of a single state
