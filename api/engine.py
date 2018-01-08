@@ -108,10 +108,13 @@ def check(
     """
 
     if not type(move) is tuple:
-        raise RuntimeError('Bot {} returned a move ({}) that was not in a pair of numbers (i.e. (2,3))'.format(player, move))
+        raise RuntimeError('Bot {} returned a move {} that was not in a pair of numbers (i.e. (2,3))'.format(player, move))
 
     if len(move) != 2:
-        raise RuntimeError('Bot {} returned a move ({}) that was not of length 2.'.format(player, move))
+        raise RuntimeError('Bot {} returned a move {} that was not of length 2.'.format(player, move))
     
     if ((type(move[0]) is not int) and (move[0] is not None)) or ((type(move[1]) is not int) and (move[1] is not None)):
-        raise RuntimeError('Bot {} returned a move ({}) that was not a tuple for which each element is either an int or None'.format(player, move))
+        raise RuntimeError('Bot {} returned a move {} that was not a tuple for which each element is either an int or None'.format(player, move))
+
+    if move[0] is None and move[1] is None:
+        raise RuntimeError('Bot {} returned (None, None). At least one of the elements needs to be an integer.'.format(player))

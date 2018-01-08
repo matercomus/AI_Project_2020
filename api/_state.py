@@ -349,8 +349,14 @@ class State:
 		rep = "The game is in phase: {}\n".format(self.__phase)
 		rep += "Player 1's points: {}, pending: {}\n".format(self.__p1_points, self.__p1_pending_points)
 		rep += "Player 2's points: {}, pending: {}\n".format(self.__p2_points, self.__p2_pending_points)
+		rep += "Player 1's hand: {}\n".format(self.__deck.get_player_hand(1))
+		rep += "Player 2's hand: {}\n".format(self.__deck.get_player_hand(2))
 		rep += "There are {} cards in the stock\n".format(self.__get_deck().get_stock_size())
-		rep += "The cards currently down are {}".format(self.__get_deck().get_trick())
+		trick = self.__get_deck().get_trick()
+		if trick[0] is not None:
+			rep += "Player 1 has played card: {}\n".format(util.get_card_name(trick[0]))
+		if trick[1] is not None:
+			rep += "Player 2 has played card: {}\n".format(util.get_card_name(trick[1]))
 
 		return rep
 
@@ -569,6 +575,3 @@ class State:
 			return 2
 
 		return self.whose_turn()
-
-	def get_deck(self):
-		return self.__deck

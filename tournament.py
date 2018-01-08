@@ -63,10 +63,10 @@ if __name__ == "__main__":
                         help="Which phase the game should start at.",
                         default=1)
 
-    parser.add_argument("-n", "--players",
+    parser.add_argument("-p", "--players",
                         dest="players",
                         help="Comma-separated list of player names (enclose with quotes).",
-                        default="rand,rand,rand")
+                        default="rand,bully,rdeep")
 
     parser.add_argument("-r", "--repeats",
                         dest="repeats",
