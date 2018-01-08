@@ -296,6 +296,14 @@ class State:
 
 		return possible_moves
 
+	# Implementation will be changed in W2
+	def hand(self):
+		"""
+		:return: An array of indices representing the cards in the current player's hand
+		"""
+		return self.__deck.get_player_hand(self.whose_turn())
+
+
 	def clone(self):
 		"""
 		:return: Returns a deep copy of the current state
@@ -401,6 +409,12 @@ class State:
 		:return: The points of the requested player
 		"""
 		return self.__deck.get_trump_suit()
+
+	def get_stock_size(self):
+		"""
+		:return: The size of the stock
+		"""
+		return self.__deck.get_stock_size()
 
 	def __exchange_trump(self, trump_jack_index):
 		"""

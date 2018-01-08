@@ -74,31 +74,33 @@ for i, card in enumerate(cards_hand):
     rank, suit = util.get_card_name(card)
     
     print('Card {} in the hand is {} of {}'.format(i, rank,suit))
-```
 
-### Draw a PNG of a single state
-```python
-fig = state.visualize()   # this is a matplotlib Figure object
-fig.savefig('state.png')  # matplotlib detects the format you want from the extension you use
+	# Suit order: CLUBS, DIAMONDS, HEARTS, SPADES
+
+	# 0, 5, 10, 15 - Aces
+	# 1, 6, 11, 16 - 10s
+	# 2, 7, 12, 17 - Kings
+	# 3, 8, 13, 18 - Queens
+	# 4, 9, 14, 19 - Jacks
 ```
 
 ### Generate a random state
 ```python
-rand_state = State.generate()
+state = State.generate()
 ```
-### Compute the average number of ships on one of my planets
+
+### And then print a representation of the generated state
+```python
+print state
+```
+### Get own/opponent's points
 
 ```python
 me = state.whose_turn()
-my_planets = state.planets(me)
+opponent = util.other(me)
 
-avg = 0.0
-for planet in my_planets:
-    avg += state.garrison(planet)
-
-avg = avg / len(my_planets)
-
-print('average ships per planet: {}'.format(avg))
+own_points = state.get_points(me)
+opponents_points = state.get_points(opponent)
 ```
 
 ## FAQ
@@ -138,5 +140,4 @@ itself. See experiment.py for an example.
 
 ## Changes from last year's challenge
 
-The codebase has been rewritten entirely, so bots from last year won't work. To
-reduce overhead, Java is no longer supported, only python.
+The codebase has been rewritten entirely, so bots from last year won't work. This year the game of Schnapsen is being introduced to take the place of Planet Wars.

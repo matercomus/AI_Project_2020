@@ -18,6 +18,16 @@ def other(
     """
     return 1 if player_id == 2 else 2 # type: int
 
+def get_card_name(card_index):
+    # type: () -> int
+    """
+    Returns the rank and the suit of a card. Maps card indices as stored in memory to actual cards
+    :param card_index:
+    :return:
+    """
+    return Deck.get_rank(card_index), Deck.get_suit(card_index)
+
+
 def load_player(name, classname='Bot'):
     #
     """
