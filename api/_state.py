@@ -219,6 +219,9 @@ class State:
 		winner = None
 		points = None
 
+		if self.__revoked is not None:
+			return self.whose_turn(), 3
+
 		if self.__p1_points >= 66:
 			winner = 1
 		elif self.__p2_points >= 66:
@@ -257,7 +260,6 @@ class State:
 			#If the player is able to exchange their trump Jack, then this option will be added to the possible moves.
 			if self.__deck.can_exchange(self.whose_turn()):
 				possible_moves.append((None, self.__deck.get_trump_jack_index()))
-			# return possible_moves
 
 		# If the game is in phase 2 and it's not the leader's turn, then some constraints apply
 		else:
@@ -420,6 +422,7 @@ class State:
 		:param player: An integer signifying the player id
 		:param player: An integer signifying the point count to player's points are set to
 		"""
+
 		if player == 1:
 			self.__p1_points = points
 		else:
@@ -432,6 +435,7 @@ class State:
 		:param player: An integer signifying the player id
 		:param player: An integer signifying the points to be added to the point count of the player
 		"""
+
 		if player == 1:
 			self.__p1_points += points
 		else:
@@ -452,9 +456,9 @@ class State:
 	def __add_pending_points(self, player):
 		"""
 		Adds the pending points of the specified player to that player's points
-
 		:param player: An integer signifying the player id
 		"""
+
 		if player == 1:
 			self.__p1_points += self.__p1_pending_points
 			self.__p1_pending_points = 0
@@ -488,6 +492,7 @@ class State:
 		:param index: An integer signifying the index of a card
 		:param card_state: A string signifying the state of the card
 		"""
+
 		if player == 1:
 			self.__p1_perspective[index] = card_state
 		else:
@@ -500,6 +505,7 @@ class State:
 		:param trick: A tuple signifying the trick which cards are revealed to the player
 		:param player: An integer signifying the player id
 		"""
+
 		if player == 1:
 			self.__p1_perspective[trick[util.other(player) - 1]] = "P2H"
 		else:
@@ -512,6 +518,7 @@ class State:
 		:param trick: A tuple signifying the trick which cards are revealed to both players
 		:param winner: An integer signifying the winner's id
 		"""
+
 		if winner == 1:
 			self.__p1_perspective[trick[0]] = self.__p1_perspective[trick[1]] = "P1W"
 			self.__p2_perspective[trick[0]] = self.__p2_perspective[trick[1]] = "P1W"
@@ -527,6 +534,7 @@ class State:
 		:param trick: A tuple signifying the trick which is evaluated
 		:return: The winner's id as an integer
 		"""
+
 		if len(trick) != 2:
 			raise RuntimeError("Incorrect trick format. List of length 2 needed.")
 		if trick[0] is None or trick[1] is None:
@@ -534,9 +542,9 @@ class State:
 		
 		# If the two cards of the trick have the same suit
 		if Deck.get_suit(trick[0]) == Deck.get_suit(trick[1]):
-			# If the two cards have the same suit, then we only consider rank,
-			# since the convention we defined in Deck puts higher rank cards
-			# at lower indices, when considering the same color.
+
+			# We only consider rank since the convention we defined in Deck 
+			# puts higher rank cards at lower indices, when considering the same color.
 			return 1 if trick[0] < trick[1] else 2
 
 		if Deck.get_suit(trick[0]) ==  self.__get_deck().get_trump_suit():
@@ -546,3 +554,6 @@ class State:
 			return 2
 
 		return self.whose_turn()
+
+	def get_deck(self):
+		return self.__deck
