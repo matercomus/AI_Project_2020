@@ -1,4 +1,4 @@
-Intelligent Systems 2017
+Intelligent Systems 2018
 ========================
 This is the practical material for the Intelligent Systems course, based on the
 card based strategy game _Schnapsen_.
@@ -54,7 +54,7 @@ Advanced python, but they occur occasionally in the code. Useful to know.
 Here are some quick use cases and solutions to help you get a feel for the code.
 
 ### Get the size of the stock
-Let 'state' be the state you're given and let's say you want the size of the i'th planet. Then the following a should do the trick:
+Let 'state' be the state you're given and let's say you want the size of the stock. Then the following a should do the trick:
 ```python
 size_of stock = state.get_stock_size()
 ```
@@ -65,31 +65,38 @@ size_of stock = state.get_stock_size()
 me = state.whose_turn()
 ```
 
-### Print the cards in your hand
+### Print the (abbreviated) cards in your hand
 
 ```python
 cards_hand = state.hand()
+
 for i, card in enumerate(cards_hand):
 
-    rank, suit = util.get_card_name(card)
-    
-    print('Card {} in the hand is {} of {}'.format(i, rank,suit))
+	rank, suit = util.get_card_name(card)
 
-	# Suit order: CLUBS, DIAMONDS, HEARTS, SPADES
-
-	# 0, 5, 10, 15 - Aces
-	# 1, 6, 11, 16 - 10s
-	# 2, 7, 12, 17 - Kings
-	# 3, 8, 13, 18 - Queens
-	# 4, 9, 14, 19 - Jacks
+	print('Card {} in the hand is {} of {}'.format(i, rank,suit))
 ```
+
+NB: The deck of cards is represented through an array. Each index corresponds to a different card, as per the table below.
+
+|          | Aces | 10s | Kings | Queens | Jacks |
+|:--------:|:----:|:---:|:-----:|:------:|:-----:|
+| **Clubs**|   0  |  1  |   2   |    3   |   4   |
+|**Diamonds**|   5|  6  |   7   |    8   |   9   |
+|**Hearts**|  10  |  11 |   12  |   13   |   14  |
+|**Spades**|  15  |  16 |   17  |   18   |   19  |
 
 ### Generate a random state
 ```python
 state = State.generate()
+
+# To deterministically generate the same state each time, the generate method can also take a seed, like so:
+
+state = State.generate(25)
+# This will always generate the same starting state, to make testing/debugging your bots easier.
 ```
 
-### And then print a representation of the generated state
+### Print a representation of the generated state
 ```python
 print state
 ```
