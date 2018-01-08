@@ -3,6 +3,7 @@ import random
 
 # TODO:
 # IMPORTANT: MAKE PRIVATE METHODS
+# Print hands in __repr__
 
 
 # Low priority/style:
