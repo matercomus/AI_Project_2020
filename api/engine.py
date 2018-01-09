@@ -1,7 +1,7 @@
 """
 This file contains functions to regulate game play.
 """
-from api import State, Deck
+from api import State, Deck, util
 from multiprocessing import Process, Manager
 
 def play(
@@ -25,7 +25,14 @@ def play(
         move = get_move(state, player, max_time, verbose)
 
         check(move, player) # check for common mistakes TODO
-        pr('*   Player {} does: {}'.format(state.whose_turn(), move), verbose)
+
+        if move[0] is None:
+            pr('*   Player {} performs a trump jack exchange'.format(state.whose_turn()), verbose)
+        else:
+            pr('*   Player {} plays: {}{}'.format(state.whose_turn(), util.get_rank(move[0]), util.get_suit(move[0])), verbose)
+            if move[1] is not None:
+                pr('*   Player {} melds a marriage between {}{} and {}{}'.format(state.whose_turn(), util.get_rank(move[0]), util.get_suit(move[0]), util.get_rank(move[1]), util.get_suit(move[1])), verbose)
+
 
         state = state.next(move)
         pr(state, verbose)

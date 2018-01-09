@@ -337,16 +337,21 @@ class State:
 		rep += "Player 1's points: {}, pending: {}\n".format(self.__p1_points, self.__p1_pending_points)
 		rep += "Player 2's points: {}, pending: {}\n".format(self.__p2_points, self.__p2_pending_points)
 		rep += "Player 1's hand:"
+
 		for card in self.__deck.get_player_hand(1):
 			rank, suit = util.get_card_name(card)
 			rep += " {}{}".format(rank, suit)
+
 		rep += "\n"
 		rep += "Player 2's hand:"
+
 		for card in self.__deck.get_player_hand(2):
 			rank, suit = util.get_card_name(card)
 			rep += " {}{}".format(rank, suit)
+
 		rep += "\n"
 		rep += "There are {} cards in the stock\n".format(self.__get_deck().get_stock_size())
+		
 		trick = self.__get_deck().get_trick()
 		if trick[0] is not None:
 			rep += "Player 1 has played card: {} of {}\n".format(util.get_rank(trick[0]), util.get_suit(trick[0]))
