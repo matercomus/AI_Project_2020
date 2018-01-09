@@ -1,19 +1,6 @@
 from api import util, Deck
 import random
 
-# TODO:
-# IMPORTANT: MAKE PRIVATE METHODS
-# Print hands in __repr__
-
-
-# Low priority/style:
-# Change all method calls of class variables from within the class to the variables themselves
-# Add constants for player 1 and player 2 so that we don't have to use 1 and 2
-
-# Following the previous idea, could alter the card states to hold state codes that would be kept
-# in static class variables. Actually I think this is something we need to do before we go to production
-
-# Maybe turn __phase into a boolean, since it can only take two values. Would be cleaner
 
 class State:
 	__deck = None  # type: Deck

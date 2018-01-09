@@ -2,6 +2,8 @@
 
 *.pdf
 
+todo.txt
+
 ### Vim template
 # swap
 [._]*.s[a-w][a-z]

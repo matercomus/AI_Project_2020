@@ -19,6 +19,22 @@ def other(
     """
     return 1 if player_id == 2 else 2 # type: int
 
+def get_suit(card_index):
+    """
+    Returns the suit of a card
+    :param card_index:
+    :return:
+    """
+    return Deck.get_suit(card_index)
+
+def get_rank(card_index):
+    """
+    Returns the rank of a card
+    :param card_index:
+    :return:
+    """
+    return Deck.get_rank(card_index)
+
 def get_card_name(card_index):
     # type: () -> int
     """
@@ -26,7 +42,7 @@ def get_card_name(card_index):
     :param card_index:
     :return:
     """
-    return Deck.get_rank(card_index), Deck.get_suit(card_index)
+    return get_rank(card_index), get_suit(card_index)
 
 
 def load_player(name, classname='Bot'):
