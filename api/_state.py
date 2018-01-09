@@ -125,15 +125,6 @@ class State:
 		#Add the given move to the trick, store the whole trick in a variable
 		trick = state.__get_deck().set_trick(state.whose_turn(), move[0])
 
-		#If it is not the lead's turn, i.e. currently the trick is incomplete
-		if not state.__leads_turn:
-			state.__player1s_turn = not state.__player1s_turn
-			state.__add_partial_trick_to_perspective(trick, state.whose_turn())
-			return state
-
-		# At this point we know that it is the lead's turn and that a complete
-		# trick from the previous hand can be evaluated.
-
 		# At this point, we know that the move is not a trump jack exchange.
 		# Check that this move is a marriage
 		if move[1] is not None:
@@ -150,6 +141,15 @@ class State:
 				state.__reserve_pending_points(state.whose_turn(), 40)
 			else:
 				state.__reserve_pending_points(state.whose_turn(), 20)
+
+		#If it is not the lead's turn, i.e. currently the trick is incomplete
+		if not state.__leads_turn:
+			state.__player1s_turn = not state.__player1s_turn
+			state.__add_partial_trick_to_perspective(trick, state.whose_turn())
+			return state
+
+		# At this point we know that it is the lead's turn and that a complete
+		# trick from the previous hand can be evaluated.
 
 		# Evaluate the trick and store the winner in the leader variable
 		leader = state.__evaluate_trick(trick)
@@ -575,3 +575,6 @@ class State:
 			return 2
 
 		return self.whose_turn()
+
+	def get_deck(self):
+		return self.__deck
