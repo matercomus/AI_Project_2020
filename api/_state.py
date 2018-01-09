@@ -336,8 +336,16 @@ class State:
 		rep = "The game is in phase: {}\n".format(self.__phase)
 		rep += "Player 1's points: {}, pending: {}\n".format(self.__p1_points, self.__p1_pending_points)
 		rep += "Player 2's points: {}, pending: {}\n".format(self.__p2_points, self.__p2_pending_points)
-		rep += "Player 1's hand: {}\n".format(self.__deck.get_player_hand(1))
-		rep += "Player 2's hand: {}\n".format(self.__deck.get_player_hand(2))
+		rep += "Player 1's hand:"
+		for card in self.__deck.get_player_hand(1):
+			rank, suit = util.get_card_name(card)
+			rep += " {}{}".format(rank, suit)
+		rep += "\n"
+		rep += "Player 2's hand:"
+		for card in self.__deck.get_player_hand(2):
+			rank, suit = util.get_card_name(card)
+			rep += " {}{}".format(rank, suit)
+		rep += "\n"
 		rep += "There are {} cards in the stock\n".format(self.__get_deck().get_stock_size())
 		trick = self.__get_deck().get_trick()
 		if trick[0] is not None:
