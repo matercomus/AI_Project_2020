@@ -126,7 +126,7 @@ class State:
 		trick = state.__get_deck().set_trick(state.whose_turn(), move[0])
 
 		# At this point, we know that the move is not a trump jack exchange.
-		# Check that this move is a marriage
+		# Check if this move is a marriage
 		if move[1] is not None:
 
 			# A marriage cannot be melded by the non-leading player
@@ -564,7 +564,7 @@ class State:
 		# If the two cards of the trick have the same suit
 		if Deck.get_suit(trick[0]) == Deck.get_suit(trick[1]):
 
-			# We only consider rank since the convention we defined in Deck 
+			# We only compare indices since the convention we defined in Deck 
 			# puts higher rank cards at lower indices, when considering the same color.
 			return 1 if trick[0] < trick[1] else 2
 
@@ -574,4 +574,9 @@ class State:
 		if Deck.get_suit(trick[1]) ==  self.__get_deck().get_trump_suit():
 			return 2
 
-		return self.whose_turn()
+		# If the control flow has reached this point, the trick consists of two
+		# different non-trump cards. Since the new leader is determined by the
+		# output of this function, at this point the state object still considers
+		# it to be the non-leading player's turn. Thus, we determine that the winner
+		# is the other player, i.e. the leading player. Thanks: Daan Raven
+		return util.other(self.whose_turn())
