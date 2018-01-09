@@ -341,9 +341,9 @@ class State:
 		rep += "There are {} cards in the stock\n".format(self.__get_deck().get_stock_size())
 		trick = self.__get_deck().get_trick()
 		if trick[0] is not None:
-			rep += "Player 1 has played card: {}\n".format(util.get_card_name(trick[0]))
+			rep += "Player 1 has played card: {} of {}\n".format(util.get_rank(trick[0]), util.get_suit(trick[0]))
 		if trick[1] is not None:
-			rep += "Player 2 has played card: {}\n".format(util.get_card_name(trick[1]))
+			rep += "Player 2 has played card: {} of {}\n".format(util.get_rank(trick[1]), util.get_suit(trick[1]))
 
 		return rep
 
