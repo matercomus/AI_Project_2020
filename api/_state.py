@@ -575,6 +575,3 @@ class State:
 			return 2
 
 		return self.whose_turn()
-
-	def get_deck(self):
-		return self.__deck
