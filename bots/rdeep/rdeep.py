@@ -17,7 +17,7 @@ class Bot:
 	# How deep to sample
 	__depth = -1
 
-	def __init__(self, num_samples=2, depth=4):
+	def __init__(self, num_samples=4, depth=8):
 		self.__num_samples = num_samples
 		self.__depth = depth
 
@@ -41,7 +41,11 @@ class Bot:
 		for move in moves:
 			for s in range(self.__num_samples):
 
-				score = self.evaluate(state.next(move), player)
+				# If we are in an imperfect information state, make an assumption.
+
+				sample_state = state.make_assumption() if state.get_phase() == 1 else state
+
+				score = self.evaluate(sample_state.next(move), player)
 
 				if score > best_score:
 					best_score = score

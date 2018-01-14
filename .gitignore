@@ -3,6 +3,7 @@
 *.pdf
 
 todo.txt
+check_kbbot.py
 
 ### Vim template
 # swap

@@ -6,7 +6,6 @@ uniformly at random.
 # Import the API objects
 from api import State
 from api import Deck
-import random
 
 
 class Bot:

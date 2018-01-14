@@ -11,6 +11,11 @@ class Deck:
 	# A list of length 20 representing all cards and their states
 	__card_state = None # type: list[str]
 
+	# A list of length 20 representing all KNOWN cards and 
+	# their states from the perspective of each player
+	__p1_perspective = None
+	__p2_perspective = None
+
 	#We use the following index representations for cards:
 
 	# Suit order: CLUBS, DIAMONDS, HEARTS, SPADES
@@ -35,20 +40,33 @@ class Deck:
 	# The suit of the trump_suit card for this given deck instance.
 	__trump_suit = None # type: String
 
+	__signature = None
+
 	def __init__(self,
 				card_state,	# type: list[str]
 				stock,		# type: list[int]
-				trump_suit 		# type: str
+				p1_perspective=None, # type: list[str]
+				p2_perspective=None, # type: list[str]
+				trump_suit=None #type:String
 				):
 		"""
 		:param card_state: list of current card states
+		:param card_state: list of current card states
+		:param card_state: list of current card states
+
 		:param stock: list of indexes of cards in stock
 		:param trump_suit: {C,D,H,S}
 		"""
 
 		self.__card_state	= card_state
+
+		self.__p1_perspective = p1_perspective
+		self.__p2_perspective = p2_perspective
+
 		self.__stock		= stock
-		self.__trump_suit	= trump_suit
+
+		self.__trump_suit	=  trump_suit if trump_suit is not None else self.get_suit(self.__stock[0])
+
 
 
 	# Computes the rank of a given card index, following the ordering given above.
@@ -72,7 +90,11 @@ class Deck:
 
 	# Returns a list of all cards currently in the stock
 	def get_stock(self):
-		return self.__stock
+		if self.get_stock_size() > 0:
+
+			return self.__stock if self.__signature is None else [self.__stock[0]] + ['U']*(self.get_stock_size()-1)
+
+		return []
 
 	# Returns the number of cards currently in the stock
 	def get_stock_size(self):
@@ -94,13 +116,19 @@ class Deck:
 
 	# Returns whether the specified player is able to exchange the trump card for its trump jack.
 	def can_exchange(self, player):
+
+		# Depending on whether this state is signed or not, we look either through 
+		# the perspective of the full card deck, or the perspective of a single player
+		perspective = self.get_perspective()
+
 		# If game is in phase 1 and player has trump jack
-		return (self.get_stock_size() > 0) and (self.__card_state[self.get_trump_jack_index()] == "P" + str(player) + "H")
+		return (self.get_stock_size() > 0) and (perspective[self.get_trump_jack_index()] == "P" + str(player) + "H")
 
 	# Returns a list of the cards in the hand of the player that is specified.
 	def get_player_hand(self, player):
 		search_term = "P1H" if player == 1 else "P2H"
-		return [i for i, x in enumerate(self.__card_state) if x == search_term]
+		search_array = self.get_perspective()
+		return [i for i, x in enumerate(search_array) if x == search_term]
 
 	# Returns the suit of the trump card.
 	def get_trump_suit(self):
@@ -108,8 +136,9 @@ class Deck:
 
 	# Swaps places of the trump card with the trump Jack.
 	def exchange_trump(self, trump_jack_index):
-		self.__card_state[self.__stock[0]] = self.__card_state[trump_jack_index]
-		self.__card_state[trump_jack_index] = "S"
+		trump_card_index = self.__stock[0]
+		self.__card_state[trump_card_index] = self.__p1_perspective[trump_card_index] = self.__p2_perspective[trump_card_index] = self.__card_state[trump_jack_index]
+		self.__card_state[trump_jack_index] = self.__p1_perspective[trump_jack_index] = self.__p2_perspective[trump_jack_index] = "S"
 		self.__stock[0] = trump_jack_index
 
 	# Returns the index of the Jack of the trump suit.
@@ -152,20 +181,31 @@ class Deck:
 	def draw_card(self, player):
 		if self.get_stock_size() == 0:
 			raise RuntimeError('Stack is empty.')
+		card = self.__stock.pop()
 		if player == 1:
-			self.__card_state[self.__stock.pop()] = "P1H"
+			self.__card_state[card] = self.__p1_perspective[card] = "P1H"
 		else:
-			self.__card_state[self.__stock.pop()] = "P2H"
+			self.__card_state[card] = self.__p2_perspective[card] = "P2H"
 
 	# Puts the cards in the trick in the specified winner's pile of won cards. After this operation the trick is emptied.
+	# Player perspectives are also updated
 	def put_trick_away(self, winner):
-		if winner == 1:
-			self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = "P1W"
-		else:
-			self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = "P2W"
-
+		self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = self.__p1_perspective[self.__trick[0]] = self.__p1_perspective[self.__trick[1]] = self.__p2_perspective[self.__trick[0]] = self.__p2_perspective[self.__trick[1]] = "P1W" if winner == 1 else "P2W"
 		self.__trick = [None, None]
 
+	def add_to_perspective(self, player, index, card_state):
+		"""
+		Changes the specified player's perspective of the card at the given index to the given card state
+
+		:param player: An integer signifying the player id
+		:param index: An integer signifying the index of a card
+		:param card_state: A string signifying the state of the card
+		"""
+
+		if player == 1:
+			self.__p1_perspective[index] = card_state
+		else:
+			self.__p2_perspective[index] = card_state
 
 	#Look into overloading this function as well
 	# Generates a new deck based on a seed. If no seed is given, a random seed in generated.
@@ -180,28 +220,86 @@ class Deck:
 		rng.shuffle(shuffled_cards)
 
 		card_state = [0]*20
+		p1_perspective = ["U"]*20
+		p2_perspective = ["U"]*20
 		stock = [] # Can be thought of as a stack data structure.
+
+		# First card of stock is trump card, face up known by both players
+		p1_perspective[shuffled_cards[0]] = p2_perspective[shuffled_cards[0]] = "S"
 
 		# Three separate for loops assign a state to the cards in the
 		# shuffled deck depending on their position. The indices of the
 		# stock cards are pushed onto the stock stack to save their order.
+		# Perspectives are also generated.
 		for i in range(10):
-			card_state[shuffled_cards[i]] = "S"
+			card_state[shuffled_cards[i]] = "S"				
 			stock.append(shuffled_cards[i])
 
 		for i in range(10, 15):
 			card_state[shuffled_cards[i]] = "P1H"
+			p1_perspective[shuffled_cards[i]] = "P1H"
 
 		for i in range(15, 20):
 			card_state[shuffled_cards[i]] = "P2H"
+			p2_perspective[shuffled_cards[i]] = "P2H"
 
-		trump_suit = Deck.get_suit(shuffled_cards[0])
+		return Deck(card_state, stock, p1_perspective, p2_perspective)
 
-		return Deck(card_state, stock, trump_suit)
+	def make_assumption(self, seed=None):
+		"""
+		Identifies all unknown cards from the perspective of
+		the relevant player, and makes guesses for their states.
+		
+		:param seed: Optional random number generator seed.
+		:return: A deck object with the card_state array changed
+		to represent a random guess of the states of the unknown cards.
+		"""
+		if seed is None:
+			seed = random.randint(0, 100000)
 
+		rng = random.Random(seed)
 
-	def clone(self):
-		deck = Deck(list(self.__card_state), list(self.__stock), self.__trump_suit)
-		deck.__trick = self.__trick
+		perspective = self.get_perspective()
+
+		trump_index = perspective.index("S")
+
+		unknowns = [index for index, card in enumerate(perspective) if card == "U"]
+
+		rng.shuffle(unknowns)
+
+		other_player_term = "P2H" if self.__signature == 1 else "P1H"
+
+		other_player_unknowns = 5 - perspective.count(other_player_term)
+
+		for i in range(other_player_unknowns):
+			perspective[unknowns.pop()] = other_player_term
+
+		stock = [trump_index] + unknowns
+
+		for i in range(len(unknowns)):
+			perspective[unknowns.pop()] = "S"
+
+		deck = Deck(perspective, stock, list(self.__p1_perspective), list(self.__p2_perspective))
+		deck.__trick = list(self.__trick)
+
+		deck.__signature = None
+
 		return deck
 
+	def clone(self, signature):
+		deck = Deck(list(self.__card_state), list(self.__stock), list(self.__p1_perspective), list(self.__p2_perspective), self.__trump_suit)
+		
+		deck.__signature = signature if self.__signature is None else self.__signature
+		deck.__trick = list(self.__trick)
+
+		return deck
+
+	def get_perspective(self, player=None):
+		if self.__signature is None:
+			if player is None:
+				return self.__card_state
+			return list(self.__p1_perspective) if player == 1 else list(self.__p2_perspective)
+		return list(self.__p1_perspective) if self.__signature == 1 else list(self.__p2_perspective)
+
+	def get_signature(self):
+		return self.__signature

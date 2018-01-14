@@ -22,9 +22,12 @@ def play(
 
         player = player1 if state.whose_turn() == 1 else player2
 
-        move = get_move(state, player, max_time, verbose)
+        # We introduce a state signature which essentially obscures the deck's perfect knowledge from the player
+        given_state = state.clone(signature=state.whose_turn()) if state.get_phase() == 1 else state
 
-        check(move, player) # check for common mistakes TODO
+        move = get_move(given_state, player, max_time, verbose)
+
+        check(move, player) # check for common mistakes
 
         if move[0] is None:
             pr('*   Player {} performs a trump jack exchange'.format(state.whose_turn()), verbose)
@@ -115,7 +118,7 @@ def check(
     """
 
     if not type(move) is tuple:
-        raise RuntimeError('Bot {} returned a move {} that was not in a pair of numbers (i.e. (2,3))'.format(player, move))
+        raise RuntimeError('Bot {} returned a move {} that was not a pair (i.e. (2,3))'.format(player, move))
 
     if len(move) != 2:
         raise RuntimeError('Bot {} returned a move {} that was not of length 2.'.format(player, move))

@@ -83,3 +83,6 @@ def ratio_points(state, player):
 	if state.get_points(player) + state.get_points(other(player)) != 0:
 		return state.get_points(player) / float((state.get_points(player) + state.get_points(other(player))))
 	return 0
+
+def difference_points(state, player):
+    return state.get_points(player) - state.get_points(other(player))

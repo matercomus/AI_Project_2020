@@ -17,8 +17,7 @@ class State:
 	__p1_pending_points = None #type: int
 	__p2_pending_points = None #type: int
 
-	__p1_perspective = None #type: list[str]
-	__p2_perspective = None #type: list[str]
+	__signature = None
 
 	__revoked = None  # type: int, None
 
@@ -28,9 +27,7 @@ class State:
 				 p1_points=0,
 				 p2_points=0,
 				 p1_pending_points=0,
-				 p2_pending_points=0,
-				 p1_perspective=None,
-				 p2_perspective=None
+				 p2_pending_points=0
 				 ):
 		"""
 		:param deck:			The Deck object which holds the full deck state.
@@ -41,7 +38,7 @@ class State:
 		"""
 		self.__deck = deck
 
-		self.__phase = 1 if len(deck.get_stock()) != 0 else 2
+		self.__phase = 1 if deck.get_stock_size() != 0 else 2
 
 		self.__player1s_turn = player1s_turn
 		self.__leads_turn = True
@@ -51,29 +48,6 @@ class State:
 
 		self.__p1_pending_points = p1_pending_points
 		self.__p2_pending_points = p2_pending_points
-
-		# If perspectives are not given in the constructor, they are computed:
-		# If phase 1, all cards that are not either in the player's hand or won already,
-		# or the revealed trump card on the bottom of the stock, are unknown.
-		# If phase 2, everything is known, so deck.__card_state is simply copied over.
-		# This is all that can be deduced from a card state array, but further knowledge
-		# can be gathered through trump jack exchanges or marriages, which is implemented
-		# in the player's perspective in state transitions.
-
-		if p1_perspective is None:
-			if self.__phase == 1:
-				p1_perspective = [card if ((card != "S" or index == deck.get_stock()[0]) and card != "P2H") else "U" for index, card in enumerate(deck.get_card_states())]
-			else:
-				p1_perspective = deck.get_card_states()
-
-		if p2_perspective is None:
-			if self.__phase == 1:
-				p2_perspective = [card if ((card != "S" or index == deck.get_stock()[0]) and card != "P1H") else "U" for index, card in enumerate(deck.get_card_states())]
-			else:
-				p2_perspective = deck.get_card_states()
-
-		self.__p1_perspective = p1_perspective
-		self.__p2_perspective = p2_perspective
 
 	def next(self,
 			 move  # type: tuple(int, int)
@@ -86,6 +60,9 @@ class State:
 		:return: Newly computed state based on current state and given move
 		"""
 
+		if self.__signature is not None and self.__signature != self.whose_turn():
+			raise RuntimeError('\n\nGame is in phase 1. Cannot view next state with imperfect information. Try making an assumption first.\n')
+
 		if self.finished():
 			raise RuntimeError('Gamestate is finished. No next states exist.')
 
@@ -94,7 +71,7 @@ class State:
 
 		# If we find an invalid move, we set the __revoked class variable
 		# To the pid of the player who made the incorrect move, and return the state as is.
-		if not state.is_valid(move):
+		if not state.__is_valid(move):
 			state.__revoked = state.whose_turn()
 			return state
 
@@ -103,27 +80,18 @@ class State:
 
 			# Store the indices we need in variables
 			trump_jack_index = move[1]
-			trump_card_index = state.__get_deck().get_trump_card_index()
+			trump_card_index = state.__deck.get_trump_card_index()
 
-			# Perform trump jack exchange
+			# Perform trump jack exchange, perspective updated in function
 			state.__exchange_trump(trump_jack_index)
 
-
-			# Update perspectives with information gained in trump jack exchange
-			state.__add_to_perspective(1, trump_card_index, state.__get_deck().get_card_state(trump_card_index))
-			state.__add_to_perspective(2, trump_card_index, state.__get_deck().get_card_state(trump_card_index))
-
-			state.__add_to_perspective(1, trump_jack_index, state.__get_deck().get_card_state(trump_jack_index))
-			state.__add_to_perspective(2, trump_jack_index, state.__get_deck().get_card_state(trump_jack_index))
-
-			# Do not change turns before returning state, since trump jack exchange does not use a turn.
 			return state
 
 		# Change turns
 		state.__leads_turn = not state.__leads_turn
 
 		#Add the given move to the trick, store the whole trick in a variable
-		trick = state.__get_deck().set_trick(state.whose_turn(), move[0])
+		trick = state.__deck.set_trick(state.whose_turn(), move[0])
 
 		# At this point, we know that the move is not a trump jack exchange.
 		# Check if this move is a marriage
@@ -134,18 +102,20 @@ class State:
 				raise RuntimeError("Marriage was attempted to be melded by non-leading player")
 
 			# Update perspective since an additional card is revealed by the player who performs a marriage.
-			state.__add_to_perspective(util.other(state.whose_turn()), move[1], "P" + str(state.whose_turn()) + "H")
+			state.__deck.add_to_perspective(util.other(state.whose_turn()), move[1], "P" + str(state.whose_turn()) + "H")
 
 			# Trump suit marriage yields 40 points, regular yields 20, to be awarded at next trick win.
-			if Deck.get_suit(move[1]) == state.__get_deck().get_trump_suit():
+			if Deck.get_suit(move[1]) == state.__deck.get_trump_suit():
 				state.__reserve_pending_points(state.whose_turn(), 40)
 			else:
 				state.__reserve_pending_points(state.whose_turn(), 20)
 
-		#If it is not the lead's turn, i.e. currently the trick is incomplete
+		# If it is not the lead's turn, i.e. currently the trick is
+		# incomplete and we already know it's not a trump jack exchange
 		if not state.__leads_turn:
+			other = state.whose_turn()
 			state.__player1s_turn = not state.__player1s_turn
-			state.__add_partial_trick_to_perspective(trick, state.whose_turn())
+			state.__deck.add_to_perspective(state.whose_turn(), trick[other-1], "P" + str(other) + "H")
 			return state
 
 		# At this point we know that it is the lead's turn and that a complete
@@ -156,19 +126,17 @@ class State:
 
 		state.__allocate_trick_points(leader, trick)
 
-		state.__get_deck().put_trick_away(leader)
+		state.__deck.put_trick_away(leader)
 
-		state.__alter_perspective(trick, leader)
-
-		if len(state.__get_deck().get_player_hand(1)) == 0 and not state.finished():
+		if state.__phase == 2 and len(state.hand()) == 0 and not state.finished():
 			# If all cards are exhausted, the winner of the last trick wins the game
 			state.__set_points(leader, 66)
 
 		#Draw cards from stock
 		if state.__phase == 1:
-			state.__get_deck().draw_card(leader)
-			state.__get_deck().draw_card(util.other(leader))
-			if state.__get_deck().get_stock_size() == 0:
+			state.__deck.draw_card(leader)
+			state.__deck.draw_card(util.other(leader))
+			if state.__deck.get_stock_size() == 0:
 				state.__phase = 2
 
 
@@ -208,7 +176,8 @@ class State:
 		points = None
 
 		if self.__revoked is not None:
-			return self.whose_turn(), 3
+			# Thanks: Joshua Kenyon
+			return util.other(self.__revoked), 3
 
 		if self.__p1_points >= 66:
 			winner = 1
@@ -236,7 +205,11 @@ class State:
 					second element is the index of that trump jack
 		"""
 
-		hand = self.__get_deck().get_player_hand(self.whose_turn())
+		hand = self.hand()
+
+		if self.__signature is not None and len(hand) == 0:
+			raise RuntimeError("\n\nGame is in phase 1. Insufficient information to derive any of the opponent's possible moves. Try to make an assumption\n")
+
 		possible_moves = []
 
 		# In this case, no constraints are put on the move
@@ -264,8 +237,8 @@ class State:
 					playable_cards = same_suit_hand
 
 
-			elif Deck.get_suit(opponent_card) != self.__get_deck().get_trump_suit():
-				trump_hand = [card for card in hand if Deck.get_suit(card) == self.__get_deck().get_trump_suit()]
+			elif Deck.get_suit(opponent_card) != self.__deck.get_trump_suit():
+				trump_hand = [card for card in hand if Deck.get_suit(card) == self.__deck.get_trump_suit()]
 				if len(trump_hand) > 0:
 					playable_cards = trump_hand
 				else:
@@ -278,7 +251,7 @@ class State:
 		#Add possible mariages to moves
 		#Marriages can only be melded by leader
 		if self.whose_turn() == self.leader():
-			possible_mariages = self.__get_deck().get_possible_mariages(self.whose_turn())
+			possible_mariages = self.__deck.get_possible_mariages(self.whose_turn())
 			possible_moves += possible_mariages
 
 		return possible_moves
@@ -291,14 +264,16 @@ class State:
 		return self.__deck.get_player_hand(self.whose_turn())
 
 
-	def clone(self):
+	def clone(self, signature=None):
 		"""
 		:return: Returns a deep copy of the current state
 		"""
-		state = State(self.__get_deck().clone(), self.__player1s_turn, self.__p1_points, self.__p2_points, self.__p1_pending_points, self.__p2_pending_points, list(self.__p1_perspective), list(self.__p2_perspective))
+		state = State(self.__deck.clone(signature), self.__player1s_turn, self.__p1_points, self.__p2_points, self.__p1_pending_points, self.__p2_pending_points)
 		state.__phase = self.__phase
 		state.__leads_turn = self.__leads_turn
 		state.__revoked = self.__revoked
+
+		state.__signature = signature if self.__signature is None else self.__signature
 
 		return state
 
@@ -325,6 +300,14 @@ class State:
 
 				state = state.next(rng.choice(state.moves()))
 
+			total_score = state.__p1_points + state.__p2_points
+			state.__set_points(1, int(total_score/2))
+			state.__p1_pending_points = 0
+
+			state.__set_points(2, int(total_score/2))
+			state.__p2_pending_points = 0
+
+
 		return state
 
 	def __repr__(self):
@@ -336,6 +319,7 @@ class State:
 		rep = "The game is in phase: {}\n".format(self.__phase)
 		rep += "Player 1's points: {}, pending: {}\n".format(self.__p1_points, self.__p1_pending_points)
 		rep += "Player 2's points: {}, pending: {}\n".format(self.__p2_points, self.__p2_pending_points)
+		rep += "The trump suit is: {}\n".format(self.get_trump_suit())
 		rep += "Player 1's hand:"
 
 		for card in self.__deck.get_player_hand(1):
@@ -350,9 +334,9 @@ class State:
 			rep += " {}{}".format(rank, suit)
 
 		rep += "\n"
-		rep += "There are {} cards in the stock\n".format(self.__get_deck().get_stock_size())
+		rep += "There are {} cards in the stock\n".format(self.__deck.get_stock_size())
 		
-		trick = self.__get_deck().get_trick()
+		trick = self.__deck.get_trick()
 		if trick[0] is not None:
 			rep += "Player 1 has played card: {} of {}\n".format(util.get_rank(trick[0]), util.get_suit(trick[0]))
 		if trick[1] is not None:
@@ -360,20 +344,11 @@ class State:
 
 		return rep
 
-	def is_valid(self, move):
-		"""
-		:param move: tuple representing move
-		:return: A boolean indicating whether the given move is valid considering the current state
-		"""
-		if (self.__phase == 1 or self.__leads_turn) and move[0] is not None and move[1] is None:
-			return (self.__get_deck().get_card_state(move[0]) == ("P" + str(self.whose_turn()) + "H"))
-		return move in self.moves()
-
 	def get_opponents_played_card(self):
 		"""
 		:return: An integer representing the index of the card the opponent has played, None if no card played
 		"""
-		return self.__get_deck().get_trick()[util.other(self.whose_turn()) - 1]
+		return self.__deck.get_trick()[util.other(self.whose_turn()) - 1]
 
 	def whose_turn(self):
 		"""
@@ -382,12 +357,12 @@ class State:
 		return 1 if self.__player1s_turn else 2
 
 	# TODO: Restrict to only current player's perspective
-	def get_perspective(self, player):
+	def get_perspective(self, player=None):
 		"""
 		:param player: The player id of the player whose perspective we want
 		:return: The perspective list of the indicated player
 		"""
-		return self.__p1_perspective if player == 1 else self.__p2_perspective
+		return self.__deck.get_perspective(player)
 
 	def leader(self):
 		"""
@@ -422,6 +397,37 @@ class State:
 		"""
 		return self.__deck.get_stock_size()
 
+	def get_phase(self):
+		"""
+		:return: The current phase
+		"""
+		return self.__phase
+
+	def make_assumption(self):
+		"""
+		Takes the current imperfect information state and makes a 
+		random guess as to the states of the unknown cards.
+		:return: A perfect information state object.
+		"""
+		if self.__signature is None:
+			raise RuntimeError("\n\nCannot make assumption, already have perfect knowledge. Try this in phase 1 or with an un-assumed state")
+
+		state = self.clone()
+
+		state.__deck = self.__deck.make_assumption()
+		state.__signature = None
+
+		return state
+
+	def __is_valid(self, move):
+		"""
+		:param move: tuple representing move
+		:return: A boolean indicating whether the given move is valid considering the current state
+		"""
+		if (self.__phase == 1 or self.__leads_turn) and move[0] is not None and move[1] is None:
+			return (self.__deck.get_card_state(move[0]) == ("P" + str(self.whose_turn()) + "H"))
+		return move in self.moves()
+
 	def __exchange_trump(self, trump_jack_index):
 		"""
 		Exchanges the trump card with the trump Jack.
@@ -429,12 +435,6 @@ class State:
 		:param trump_jack_index: An integer signifying the index of the trump Jack
 		"""
 		self.__deck.exchange_trump(trump_jack_index)
-
-	def __get_deck(self):
-		"""
-		:return: The deck in the state
-		"""
-		return self.__deck
 
 	def __set_points(self, player, points):
 		"""
@@ -505,49 +505,6 @@ class State:
 		self.__add_points(winner, total_score)
 		self.__add_pending_points(winner)
 
-	def __add_to_perspective(self, player, index, card_state):
-		"""
-		Changes the specified player's perspective of the card at the given index to the given card state
-
-		:param player: An integer signifying the player id
-		:param index: An integer signifying the index of a card
-		:param card_state: A string signifying the state of the card
-		"""
-
-		if player == 1:
-			self.__p1_perspective[index] = card_state
-		else:
-			self.__p2_perspective[index] = card_state
-
-	def __add_partial_trick_to_perspective(self, trick, player):
-		"""
-		Adds the card in the trick to the specified player's perspective
-
-		:param trick: A tuple signifying the trick which cards are revealed to the player
-		:param player: An integer signifying the player id
-		"""
-
-		if player == 1:
-			self.__p1_perspective[trick[util.other(player) - 1]] = "P2H"
-		else:
-			self.__p2_perspective[trick[util.other(player) - 1]] = "P1H"
-
-	def __alter_perspective(self, trick, winner):
-		"""
-		Adds the cards in the trick to both players' perspective as in the won cards pile of the specified winner
-
-		:param trick: A tuple signifying the trick which cards are revealed to both players
-		:param winner: An integer signifying the winner's id
-		"""
-
-		if winner == 1:
-			self.__p1_perspective[trick[0]] = self.__p1_perspective[trick[1]] = "P1W"
-			self.__p2_perspective[trick[0]] = self.__p2_perspective[trick[1]] = "P1W"
-
-		else:
-			self.__p1_perspective[trick[0]] = self.__p1_perspective[trick[1]] = "P2W"
-			self.__p2_perspective[trick[0]] = self.__p2_perspective[trick[1]] = "P2W"
-
 	def __evaluate_trick(self, trick):
 		"""
 		Evaluates who the winner of the specified trick is and returns it
@@ -568,10 +525,10 @@ class State:
 			# puts higher rank cards at lower indices, when considering the same color.
 			return 1 if trick[0] < trick[1] else 2
 
-		if Deck.get_suit(trick[0]) ==  self.__get_deck().get_trump_suit():
+		if Deck.get_suit(trick[0]) ==  self.__deck.get_trump_suit():
 			return 1
 
-		if Deck.get_suit(trick[1]) ==  self.__get_deck().get_trump_suit():
+		if Deck.get_suit(trick[1]) ==  self.__deck.get_trump_suit():
 			return 2
 
 		# If the control flow has reached this point, the trick consists of two

@@ -31,6 +31,5 @@ class Bot:
         moves = state.moves()
 
 
-        # print state.get_deck().get_card_states()
         # Return a random choice
         return random.choice(moves)

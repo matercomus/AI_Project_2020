@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from api import Deck, State
-import random
+import random, sys
 
 
 class TestState(TestCase):
@@ -35,12 +35,56 @@ class TestState(TestCase):
 		self.assertEqual(state.get_pending_points(1), 0)
 		self.assertEqual(state.get_pending_points(2), 0)
 
-	# Still in progress
 	def test_marriage_deterministic(self):
 		state = State.generate(38)
 		self.assertEqual(state.get_deck().get_card_states(), ['S', 'P2H', 'P1H', 'S', 'P1H', 'P1H', 'S', 'S', 'P2H', 'S', 'S', 'P2H', 'P2H', 'P2H', 'S', 'S', 'S', 'S', 'P1H', 'P1H'])
 		self.assertEqual(state.get_perspective(1), ['U', 'U', 'P1H', 'U', 'P1H', 'P1H', 'U', 'U', 'U', 'U', 'U', 'U', 'U', 'U', 'S', 'U', 'U', 'U', 'P1H', 'P1H'])
 		self.assertEqual(state.get_perspective(2), ['U', 'P2H', 'U', 'U', 'U', 'U', 'U', 'U', 'P2H', 'U', 'U', 'P2H', 'P2H', 'P2H', 'S', 'U', 'U', 'U', 'U', 'U'])
+
+		state = state.next((12, 13))
+		self.assertEqual(state.get_deck().get_card_states(), ['S', 'P2H', 'P1H', 'S', 'P1H', 'P1H', 'S', 'S', 'P2H', 'S', 'S', 'P2H', 'P2H', 'P2H', 'S', 'S', 'S', 'S', 'P1H', 'P1H'])
+		self.assertEqual(state.get_perspective(1), ['U', 'U', 'P1H', 'U', 'P1H', 'P1H', 'U', 'U', 'U', 'U', 'U', 'U', 'P2H', 'P2H', 'S', 'U', 'U', 'U', 'P1H', 'P1H'])
+		self.assertEqual(state.get_perspective(2), ['U', 'P2H', 'U', 'U', 'U', 'U', 'U', 'U', 'P2H', 'U', 'U', 'P2H', 'P2H', 'P2H', 'S', 'U', 'U', 'U', 'U', 'U'])
+
+		move = random.choice(state.moves())
+		index = move[0]
+
+		scores = [11, 10, 4, 3, 2]
+		score = 40 + scores[12%5] + scores[index%5]
+
+		st = state.get_deck().get_stock()
+
+
+		state = state.next(move)
+
+		card_states = ['S', 'P2H', 'P1H', 'S', 'P1H', 'P1H', 'S', 'S', 'P2H', 'S', 'S', 'P2H', 'P2W', 'P2H', 'S', 'S', 'S', 'S', 'P1H', 'P1H']
+		st1 = st.pop()
+		st2 = st.pop()
+		card_states[index] = "P2W"
+		card_states[st1] = "P2H"
+		card_states[st2] = "P1H"
+
+		p1 = ['U', 'U', 'P1H', 'U', 'P1H', 'P1H', 'U', 'U', 'U', 'U', 'U', 'U', 'P2W', 'P2H', 'S', 'U', 'U', 'U', 'P1H', 'P1H']
+		p1[st2] = "P1H"
+		p1[index] = "P2W"
+
+		p2 = ['U', 'P2H', 'U', 'U', 'U', 'U', 'U', 'U', 'P2H', 'U', 'U', 'P2H', 'P2W', 'P2H', 'S', 'U', 'U', 'U', 'U', 'U']
+		p2[index] = "P2W"
+		p2[st1] = "P2H"
+
+		self.assertEqual(state.get_deck().get_card_states(), card_states)
+		self.assertEqual(state.get_perspective(1), p1)
+		self.assertEqual(state.get_perspective(2), p2)
+
+		self.assertEqual(state.get_points(1), 0)
+		self.assertEqual(state.get_points(2), score)
+
+	#TODO
+	def test_few_moves(self):
+		state = State.generate(50)
+		self.assertEqual(state.get_perspective(), ['P1H', 'P1H', 'S', 'S', 'P2H', 'P2H', 'S', 'P2H', 'P1H', 'P2H', 'S', 'P2H', 'S', 'S', 'P1H', 'S', 'P1H', 'S', 'S', 'S'])
+		s1 = state.clone(1)
+		self.assertEqual(s1.get_perspective(), ['P1H', 'P1H', 'U', 'U', 'U', 'U', 'U', 'U', 'P1H', 'U', 'S', 'U', 'U', 'U', 'P1H', 'U', 'P1H', 'U', 'U', 'U'])
 
 	def test_next(self):
 		# TODO: add sth?
@@ -95,7 +139,7 @@ class TestState(TestCase):
 
 	def test_game_full(self):
 		wins = 0
-		for i in range(100000):
+		for i in range(10000):
 			state = State.generate()
 			while not state.finished():
 				moves = state.moves()
