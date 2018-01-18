@@ -218,10 +218,6 @@ class State:
 			for card in hand:
 				possible_moves.append((card, None))
 
-			#If the player is able to exchange their trump Jack, then this option will be added to the possible moves.
-			if self.__deck.can_exchange(self.whose_turn()):
-				possible_moves.append((None, self.__deck.get_trump_jack_index()))
-
 		# If the game is in phase 2 and it's not the leader's turn, then some constraints apply
 		else:
 			opponent_card = self.get_opponents_played_card()
@@ -233,24 +229,31 @@ class State:
 
 				if len(same_suit_hand_higher) > 0:
 					playable_cards = same_suit_hand_higher
+
 				else:
 					playable_cards = same_suit_hand
-
 
 			elif Deck.get_suit(opponent_card) != self.__deck.get_trump_suit():
 				trump_hand = [card for card in hand if Deck.get_suit(card) == self.__deck.get_trump_suit()]
 				if len(trump_hand) > 0:
+
 					playable_cards = trump_hand
+
 				else:
 					playable_cards = hand
+
 			else:
 				playable_cards = hand
 
 			possible_moves = [(card, None) for card in playable_cards]
 
-		#Add possible mariages to moves
-		#Marriages can only be melded by leader
+		#Add possible trump jack exchanges and mariages to moves
+		#Marriages and exchanges can only be made by the leading player
 		if self.whose_turn() == self.leader():
+
+			if self.__deck.can_exchange(self.whose_turn()):
+				possible_moves.append((None, self.__deck.get_trump_jack_index()))
+
 			possible_mariages = self.__deck.get_possible_mariages(self.whose_turn())
 			possible_moves += possible_mariages
 

@@ -10,6 +10,14 @@ To get to know the concept of the game, please visit
 
 Your job is to make a bot that will play this game. 
 
+## Particularities of our implementation
+
+For this implementation of the game, we mostly followed the rules described in the above link, with a few caveats:
+* Partial information about the state of the deck is updated automatically, so you don't have to keep track of it yourself.
+* In the same vein, it is not the player's responsibility to keep track of their (and their enemy's) points, as it would be in regular Schnapsen. This is done automatically through the game engine, which also removes the aspect of having to declare that you have over 66 points in order to win the game.
+* "Closing the talon" is not implemented due to the increased branching factor caused by having to consider the aforementioned closing as an additional possibility.
+* Scoring is implemented as the rules would suggest. A player can receive 1-3 points for winning a round, depending on the score differential. However, play.py and tournament.py play the game only in terms of these rounds, not in terms of a "full game" described as playing rounds until one player reaches 7 points.
+
 ## Technical requirements
 
 You require a working Python 2.7 environment and a good text editor or an IDE. You can download Python 2.7 for your machine from the following sources:  
