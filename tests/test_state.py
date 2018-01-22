@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from api import Deck, State
-import random, sys
+import random
 
 
 class TestState(TestCase):
@@ -34,6 +34,27 @@ class TestState(TestCase):
 		self.assertEqual(state.get_points(2), 0)
 		self.assertEqual(state.get_pending_points(1), 0)
 		self.assertEqual(state.get_pending_points(2), 0)
+
+	def test_trump_jack_non_leading(self):
+		state = State.generate(6)
+		trump_suit = state.get_trump_suit()
+
+		jacks = [move for move in state.moves() if (move[0] == 4 or move[0] == 9 or move[0] == 14 or move[0] == 19)]
+		trump_jacks = [move for move in jacks if util.get_suit(move[0]) == trump_suit]
+
+		self.assertEqual(len(state.moves()), 5 + len(trump_jacks))
+		self.assertEqual(len(jacks), 0)
+
+
+		state = state.next(random.choice(state.moves()))
+
+		jacks = [move for move in state.moves() if (move[0] == 4 or move[0] == 9 or move[0] == 14 or move[0] == 19)]
+		trump_jacks = [move for move in jacks if util.get_suit(move[0]) == trump_suit]
+
+
+
+
+
 
 	def test_marriage_deterministic(self):
 		state = State.generate(38)
