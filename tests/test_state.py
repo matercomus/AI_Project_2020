@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from api import Deck, State
+from api import Deck, State, util
 import random
 
 
@@ -37,22 +37,23 @@ class TestState(TestCase):
 
 	def test_trump_jack_non_leading(self):
 		state = State.generate(6)
+		me = state.whose_turn()
+		s1 = state.clone(signature=me)
 		trump_suit = state.get_trump_suit()
 
-		jacks = [move for move in state.moves() if (move[0] == 4 or move[0] == 9 or move[0] == 14 or move[0] == 19)]
+		jacks = [move for move in s1.moves() if (move[0] == 4 or move[0] == 9 or move[0] == 14 or move[0] == 19)]
 		trump_jacks = [move for move in jacks if util.get_suit(move[0]) == trump_suit]
 
-		self.assertEqual(len(state.moves()), 5 + len(trump_jacks))
-		self.assertEqual(len(jacks), 0)
-
+		self.assertEqual(len(s1.moves()), 5 + len(trump_jacks))
 
 		state = state.next(random.choice(state.moves()))
+		s1 = state.clone(me)
 
 		jacks = [move for move in state.moves() if (move[0] == 4 or move[0] == 9 or move[0] == 14 or move[0] == 19)]
 		trump_jacks = [move for move in jacks if util.get_suit(move[0]) == trump_suit]
 
-
-
+		self.assertGreater(len(trump_jacks), 0)
+		self.assertEqual(len(state.moves()), 5)
 
 
 

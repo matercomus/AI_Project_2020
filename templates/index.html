@@ -1,0 +1,39 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script type="text/javascript">
+// setup some JSON to use
+var cars = [
+	{ "make":"Porsche", "model":"911S" },
+	{ "make":"Mercedes-Benz", "model":"220SE" },
+	{ "make":"Jaguar","model": "Mark VII" }
+];
+
+window.onload = function() {
+	// setup the button click
+	document.getElementById("theButton").onclick = function() {
+		doWork()
+	};
+}
+
+function doWork() {
+	// ajax the JSON to the server
+	console.log(cars)
+	$.ajax({
+		type: "POST",
+		url: "receiver",
+		data: JSON.stringify(cars),
+		success: function(data){
+			console.log(data);
+		},
+		error: function(err){
+			console.log(err);
+		},
+		dataType: "json"
+	});
+	// $.post("receiver", cars, function(){
+
+	// });
+ 	event.preventDefault();
+}
+</script>
+This will send data using AJAX to Python:<br /><br />
+<a href="" id="theButton">Click Me</a>

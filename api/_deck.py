@@ -303,3 +303,22 @@ class Deck:
 
 	def get_signature(self):
 		return self.__signature
+
+	def convert_to_json(self):
+		return {"card_state":self.__card_state, "p1_perspective":self.__p1_perspective, "p2_perspective":self.__p2_perspective, "trick":self.__trick, "stock":self.__stock, "trump_suit":self.__trump_suit, "signature":self.__signature}
+
+	@staticmethod
+	def load_from_json(dict):
+		deck = Deck(dict['card_state'], dict['stock'], dict['p1_perspective'], dict['p2_perspective'])
+		deck.__signature = dict['signature']
+		deck.__trick = dict['trick']
+
+		return deck
+
+	def __eq__(self, o):
+		return self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature
+
+	def __ne__(self, o):
+		return not (self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature)
+
+
