@@ -27,29 +27,30 @@ def play(
 
         move = get_move(given_state, player, max_time, verbose)
 
-        check(move, player) # check for common mistakes
+        if is_valid(move, player): # check for common mistakes
 
-        if move[0] is None:
-            pr('*   Player {} performs a trump jack exchange'.format(state.whose_turn()), verbose)
+
+            if move[0] is None:
+                pr('*   Player {} performs a trump jack exchange'.format(state.whose_turn()), verbose)
+            
+            else:
+                pr('*   Player {} plays: {}{}'.format(state.whose_turn(), util.get_rank(move[0]), util.get_suit(move[0])), verbose)
+                
+                if move[1] is not None:
+                    pr('*   Player {} melds a marriage between {}{} and {}{}'.format(state.whose_turn(), util.get_rank(move[0]), util.get_suit(move[0]), util.get_rank(move[1]), util.get_suit(move[1])), verbose)
+
+            state = state.next(move)
+            pr(state, verbose)
+
+            if not state.revoked() is None:
+                pr('!   Player {} revoked (made illegal move), game finished.'.format(state.revoked()), verbose)
+        
         else:
-            pr('*   Player {} plays: {}{}'.format(state.whose_turn(), util.get_rank(move[0]), util.get_suit(move[0])), verbose)
-            if move[1] is not None:
-                pr('*   Player {} melds a marriage between {}{} and {}{}'.format(state.whose_turn(), util.get_rank(move[0]), util.get_suit(move[0]), util.get_rank(move[1]), util.get_suit(move[1])), verbose)
+            state.set_to_revoked()
 
+    pr('Game finished. Player {} has won, receiving {} points.'.format(state.winner()[0], state.winner()[1]), verbose)
 
-        state = state.next(move)
-        pr(state, verbose)
-
-        if not state.revoked() is None:
-            pr('!   Player {} revoked (made illegal move), game finished.'.format(state.revoked()), verbose)
-
-
-    if state.finished():
-        pr('Game finished. Player {} has won, receiving {} points.'.format(state.winner()[0], state.winner()[1]), verbose)
-    else:
-        pr('Maximum turns exceed. No winner.', verbose)
-
-    return state.winner() if state.finished() else None
+    return state.winner()
 
 def get_move(state, player, max_time, verbose):
     """
@@ -77,14 +78,16 @@ def get_move(state, player, max_time, verbose):
     # Check if the process terminated in time
     move = None
     if process.is_alive():
-        pr('!   Player {} took too long, no move made.'.format(state.whose_turn()), verbose)
+        pr('!   Player {} took too long, game revoked.'.format(state.whose_turn()), verbose)
 
         process.terminate()
         process.join()
+        move = "Late"
 
     else:
         # extract the move
-        move = result['move']
+        if 'move' in result:
+            move = result['move']
 
     return move
 
@@ -107,7 +110,7 @@ def pr(string, verbose):
         print(string)
 
 #Syntax checking the move
-def check(
+def is_valid(
         move, # type: tuple[int, int]
         player):
     """
@@ -117,14 +120,23 @@ def check(
     :param player:
     """
 
+    if move == "Late":
+        return False
+
     if not type(move) is tuple:
-        raise RuntimeError('Bot {} returned a move {} that was not a pair (i.e. (2,3))'.format(player, move))
+        print('Bot {} returned a move {} that was not a pair (i.e. (2,3))'.format(player, move))
+        return False
 
     if len(move) != 2:
-        raise RuntimeError('Bot {} returned a move {} that was not of length 2.'.format(player, move))
+        print('Bot {} returned a move {} that was not of length 2.'.format(player, move))
+        return False
     
     if ((type(move[0]) is not int) and (move[0] is not None)) or ((type(move[1]) is not int) and (move[1] is not None)):
-        raise RuntimeError('Bot {} returned a move {} that was not a tuple for which each element is either an int or None'.format(player, move))
+        print('Bot {} returned a move {} that was not a tuple for which each element is either an int or None'.format(player, move))
+        return False
 
     if move[0] is None and move[1] is None:
-        raise RuntimeError('Bot {} returned (None, None). At least one of the elements needs to be an integer.'.format(player))
+        print('Bot {} returned (None, None). At least one of the elements needs to be an integer.'.format(player))
+        return False
+
+    return True

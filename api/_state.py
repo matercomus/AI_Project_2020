@@ -542,6 +542,13 @@ class State:
 		# is the other player, i.e. the leading player. Thanks: Daan Raven
 		return util.other(self.whose_turn())
 
+	def set_to_revoked(self):
+		"""
+		Makes the current player lose the game.
+		Note: This function is public but it has no utility for students.
+		"""
+		self.__revoked = self.whose_turn()
+
 	def convert_to_json(self):
 		if self.__signature is not None:
 			raise RuntimeError("Cannot convert partial information state to JSON")
@@ -557,16 +564,10 @@ class State:
 
 		return state
 
-	# I only added this for testing whether loading from json rendered the same state object.
+	# Only added these for testing whether loading from json rendered the same state object.
+	# However might be useful for other purposes
 	def __eq__(self, o):
 		return self.__deck == o.__deck and self.__phase == o.__phase and self.__leads_turn == o.__leads_turn and self.__player1s_turn == o.__player1s_turn and self.__p1_points == o.__p1_points and self.__p2_points == o.__p2_points and self.__p1_pending_points == o.__p1_pending_points and self.__p2_pending_points == o.__p2_pending_points and self.__signature == o.__signature and self.__revoked == o.__revoked
 
 	def __ne__(self, o):
 		return not (self.__deck == o.__deck and self.__phase == o.__phase and self.__leads_turn == o.__leads_turn and self.__player1s_turn == o.__player1s_turn and self.__p1_points == o.__p1_points and self.__p2_points == o.__p2_points and self.__p1_pending_points == o.__p1_pending_points and self.__p2_pending_points == o.__p2_pending_points and self.__signature == o.__signature and self.__revoked == o.__revoked)
-
-
-
-
-
-
-
