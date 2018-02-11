@@ -354,6 +354,12 @@ class State:
 		"""
 		return self.__deck.get_trick()[util.other(self.whose_turn()) - 1]
 
+	def get_prev_trick(self):
+		"""
+		:return: An array of length 2 representing the last trick played. [None, None] if currently in first turn.
+		"""
+		return self.__deck.get_prev_trick()
+
 	def whose_turn(self):
 		"""
 		:return: The player id whose turn it is currently
@@ -550,12 +556,21 @@ class State:
 		self.__revoked = self.whose_turn()
 
 	def convert_to_json(self):
+		"""
+		Creates a JSON representation of the current state.
+		Written for the user inteface.
+		"""
+
 		if self.__signature is not None:
 			raise RuntimeError("Cannot convert partial information state to JSON")
 		return dumps({"deck":self.__deck.convert_to_json(), "phase":self.__phase, "leads_turn":self.__leads_turn, "player1s_turn":self.__player1s_turn, "p1_points":self.__p1_points, "p2_points":self.__p2_points, "p1_pending_points":self.__p1_pending_points, "p2_pending_points":self.__p2_pending_points, "signature":self.__signature, "revoked":self.__revoked})
 
 	@staticmethod
 	def load_from_json(dict):
+		"""
+		Creates a new state object from a JSON representation
+		Written for the user interface
+		"""
 
 		state = State(Deck.load_from_json(dict['deck']), dict['player1s_turn'], dict['p1_points'], dict['p2_points'], dict['p1_pending_points'], dict['p2_pending_points'])
 		state.__phase = dict['phase']
@@ -564,8 +579,8 @@ class State:
 
 		return state
 
-	# Only added these for testing whether loading from json rendered the same state object.
-	# However might be useful for other purposes
+	# Equality operator overrides, to check if two different state
+	# objects actually refer to the same state or not.
 	def __eq__(self, o):
 		return self.__deck == o.__deck and self.__phase == o.__phase and self.__leads_turn == o.__leads_turn and self.__player1s_turn == o.__player1s_turn and self.__p1_points == o.__p1_points and self.__p2_points == o.__p2_points and self.__p1_pending_points == o.__p1_pending_points and self.__p2_pending_points == o.__p2_pending_points and self.__signature == o.__signature and self.__revoked == o.__revoked
 

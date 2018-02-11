@@ -31,6 +31,11 @@ class Deck:
 	# The ints represent the index of the played cards according to the scheme above.
 	__trick = [None, None] # type: list[int], list[None]
 
+	# Variable that stores the previous trick that was evaluated.
+	# Starts out as [None, None], then [int, int] after
+	# the first trick has been evaluated.
+	__previous_trick = [None, None];
+
 	# A variable length list of card indexes representing the
 	# cards currently in stock, and more importantly, their order.
 	# First index in this list is always the trump_suit card, last index
@@ -108,6 +113,9 @@ class Deck:
 	# set to None if no card is put down on that side of the trick. TODO: strange wording
 	def get_trick(self):
 		return list(self.__trick)
+
+	def get_prev_trick(self):
+		return list(self.__previous_trick) if self.__previous_trick is not None else None
 
 	# Places card in the trick in the position of the specified player. Returns the resulting trick.
 	def set_trick(self, player, card):
@@ -191,6 +199,9 @@ class Deck:
 	# Player perspectives are also updated
 	def put_trick_away(self, winner):
 		self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = self.__p1_perspective[self.__trick[0]] = self.__p1_perspective[self.__trick[1]] = self.__p2_perspective[self.__trick[0]] = self.__p2_perspective[self.__trick[1]] = "P1W" if winner == 1 else "P2W"
+		
+		# Don't need to make a deep copy in this instance, tested.
+		self.__previous_trick = self.__trick;
 		self.__trick = [None, None]
 
 	def add_to_perspective(self, player, index, card_state):
@@ -280,7 +291,9 @@ class Deck:
 			perspective[unknowns.pop()] = "S"
 
 		deck = Deck(perspective, stock, list(self.__p1_perspective), list(self.__p2_perspective))
+
 		deck.__trick = list(self.__trick)
+		deck.__previous_trick = list(self.__previous_trick) if self.__previous_trick is not None else None
 
 		deck.__signature = None
 
@@ -291,6 +304,7 @@ class Deck:
 		
 		deck.__signature = signature if self.__signature is None else self.__signature
 		deck.__trick = list(self.__trick)
+		deck.__previous_trick = list(self.__previous_trick) if self.__previous_trick is not None else None
 
 		return deck
 
@@ -305,20 +319,21 @@ class Deck:
 		return self.__signature
 
 	def convert_to_json(self):
-		return {"card_state":self.__card_state, "p1_perspective":self.__p1_perspective, "p2_perspective":self.__p2_perspective, "trick":self.__trick, "stock":self.__stock, "trump_suit":self.__trump_suit, "signature":self.__signature}
+		return {"card_state":self.__card_state, "p1_perspective":self.__p1_perspective, "p2_perspective":self.__p2_perspective, "trick":self.__trick, "previous_trick":self.__previous_trick, "stock":self.__stock, "trump_suit":self.__trump_suit, "signature":self.__signature}
 
 	@staticmethod
 	def load_from_json(dict):
 		deck = Deck(dict['card_state'], dict['stock'], dict['p1_perspective'], dict['p2_perspective'])
 		deck.__signature = dict['signature']
 		deck.__trick = dict['trick']
+		deck.__previous_trick = dict['previous_trick']
 
 		return deck
 
 	def __eq__(self, o):
-		return self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature
+		return self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__previous_trick == o.__previous_trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature
 
 	def __ne__(self, o):
-		return not (self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature)
+		return not (self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__previous_trick == o.__previous_trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature)
 
 
