@@ -1,3 +1,28 @@
+// TODO
+
+// Set better height/width for won cards
+// Represent marriages/exchanges
+
+// Maybe use the hardcoded card sizes to make sure cards never overlap
+
+// Revisit dealStock - not sure what this means, old comment.
+
+// Play around with transitions, everything looks really static currently.
+
+// Implement one-hot encoding in ml.py
+
+// Add some arg options to server.py, so the parameters are not hard coded.
+
+// Interactive mode - clickable cards:
+
+// var a = deck.cards[50].$el
+// undefined
+// $(a)
+// w.fn.init [div.card.diamonds.rank12]
+// $(a).click(function(){
+// alert("foo");})
+
+
 // Removes all cards that are not needed to play Schnapsen
 function schnapsenDeck(){
     fullDeck = Deck();
@@ -54,9 +79,6 @@ function moveCard(card, xc, yc, rotc=0){
     });
 }
 
-// revisit dealStock
-// Check hardcoded card sizes and maybe do some hard coding of my own so that they don't overlap
-
 function dealStock(visualDeck, stock){
     height = window.innerHeight;
     width = window.innerWidth;
@@ -71,13 +93,6 @@ function dealStock(visualDeck, stock){
             moveCard(card, -3*width/8, 0);
         }
     });
-}
-
-// TODO
-function reorderArrayElement(array, srcIndex, targetIndex){
-    if(srcIndex > targetIndex){
-
-    }
 }
 
 function arrIsNull(arr){
@@ -242,8 +257,47 @@ function getCardStateArray(backEndState){
     return card_state;
 }
 
+function stateFinished(state){
+    if(state.revoked != null || state.p1_points >= 66 || state.p2_points >= 66){
+        return true;
+    }
+    return false;
+}
+
+function startGameLoop(deck, state){
+
+    setUpCards(deck, state);
+
+    setTimeout(function(){
+
+        if(stateFinished(state)){
+            console.log("Game finished");
+            return;
+        }
+
+        // Not using async request because it doesn't run on main thread
+        $.ajax({
+            url: '/next',
+            type: 'GET',
+            success: function(response) {
+                startGameLoop(deck, JSON.parse(response));
+
+            },
+            error: function(error) {
+                console.log(error);
+                console.log("Error in game loop");
+                return;
+            }
+        });
+
+    }, INTERVAL);
+
+}
+
 var ordered = false;
 var stateObject = null;
+
+const INTERVAL = 1000;
 
 // Get container
 var $container = document.getElementById('container');
@@ -259,11 +313,10 @@ $.ajax({
     type: 'GET',
     success: function(response) {
         stateObject = JSON.parse(response);
-        setUpCards(deck, stateObject)
+        console.log(stateObject);
+        startGameLoop(deck, stateObject);
     },
     error: function(error) {
         console.log(error);
     }
 });
-
-

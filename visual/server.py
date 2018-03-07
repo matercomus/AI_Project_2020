@@ -3,7 +3,7 @@
 import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from api import State
+from api import State, util
 
 from flask import Flask, render_template, request, redirect, Response
 import random, json
@@ -15,6 +15,7 @@ app.config.update(
 )
 
 state = None
+player1 = util.load_player("rand")
 
 @app.route('/')
 def output():
@@ -24,9 +25,14 @@ def output():
 
 @app.route('/generate', methods = ['GET'])
 def generate():
-	# read json + reply
 	global state
 	state = State.generate()
+	return state.convert_to_json()
+
+@app.route('/next', methods = ['GET'])
+def new():
+	global state
+	state = state.next(player1.get_move(state))
 	return state.convert_to_json()
 
 
