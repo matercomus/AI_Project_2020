@@ -331,9 +331,9 @@ class Deck:
 		return deck
 
 	def __eq__(self, o):
-		return self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__previous_trick == o.__previous_trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature
+		return self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature
 
 	def __ne__(self, o):
-		return not (self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__previous_trick == o.__previous_trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature)
+		return not (self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature)
 
 

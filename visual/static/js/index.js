@@ -13,6 +13,8 @@
 
 // Add some arg options to server.py, so the parameters are not hard coded.
 
+// Maybe perform additional logical checks in order to avoid switching card sides so often
+
 // Interactive mode - clickable cards:
 
 // var a = deck.cards[50].$el

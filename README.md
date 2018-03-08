@@ -1,3 +1,4 @@
+
 Intelligent Systems 2018
 ========================
 This is the practical material for the Intelligent Systems course, based on the
@@ -25,6 +26,12 @@ You require a working Python 2.7 environment and a good text editor or an IDE. Y
 * [MacOS](https://www.python.org/downloads/mac-osx/)  
 * [Linux](https://www.python.org/downloads/source/)
 * [Other](https://www.python.org/download/other/)
+
+The core game engine runs on pure Python, however you will need a few additional packages for tasks throughout the course. This is most easily done through [pip](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line, and the required packages can be obtained through one command:
+
+```bash
+pip install numpy scipy matplotlib sklearn flask
+```
 
 ### Python knowledge
 
@@ -102,6 +109,21 @@ state = State.generate()
 
 state = State.generate(25)
 # This will always generate the same starting state, to make testing/debugging your bots easier.
+# Note that any two states generated with the same seed will be identical, and 25 is only used as an example.
+```
+
+### Check if two states are identical
+
+```python
+state = State.generate(1)
+same_state = State.generate(1)
+diff_state = State.generate(2)
+
+# The equality and inequality operators are overridden for State objects, so you can check if all parameters of two states match.
+
+state == same_state # Evaluates to True
+state == diff_state # Evaluates to False
+state != diff_state # Evaluates to True
 ```
 
 ### Print a representation of the generated state
@@ -117,6 +139,14 @@ opponent = util.other(me)
 own_points = state.get_points(me)
 opponents_points = state.get_points(opponent)
 ```
+
+### Get familiar with the State API
+
+Every state-related function you will use when building your bot can be found, fully documented, in the State class, located in api/_state.py.
+
+Note that you only have access to public functions. Private functions, i.e. functions whose name starts with two underscores "__" are used for the internal implementation of the game and are abstracted away from the player.
+
+Reading the code itself in addition to the documentation can help you get acquainted with the internals of the game engine, however this is not obligatory in order to be able to complete the course.
 
 ## FAQ
 
