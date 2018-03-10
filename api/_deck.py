@@ -149,6 +149,10 @@ class Deck:
 		self.__card_state[trump_jack_index] = self.__p1_perspective[trump_jack_index] = self.__p2_perspective[trump_jack_index] = "S"
 		self.__stock[0] = trump_jack_index
 
+		# This is done to help the visual part differentiate between
+		# Trump Jack Exchanges and regular moves. Shouldn't affect anything.
+		self.__previous_trick = [None, None]
+
 	# Returns the index of the Jack of the trump suit.
 	def get_trump_jack_index(self):
 		#The Aces of different suits are always 5 apart from another Ace

@@ -4,6 +4,10 @@ import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from api import State, util
+from argparse import ArgumentParser
+import random
+import json
+
 
 from flask import Flask, render_template, request, redirect, Response
 import random, json
@@ -21,19 +25,32 @@ player1 = util.load_player("rand")
 def output():
 	# serve index template
 	# return "Welcome to python flask!"
-	return render_template('index.html')
+	return render_template('index_interactive.html')
 
 @app.route('/generate', methods = ['GET'])
 def generate():
 	global state
+	# id = random.randint(0, 100000)
 	state = State.generate()
-	return state.convert_to_json()
+	return state.convert_to_json() #[:-1] + ', "seed": ' + str(id) + '}')
 
 @app.route('/next', methods = ['GET'])
 def new():
 	global state
 	state = state.next(player1.get_move(state))
 	return state.convert_to_json()
+
+@app.route('/sendmove', methods = ['POST'])
+def send():
+	global state
+	data = request.get_json(force=True)
+	move = (data[0], data[1])
+	state = state.next(move)
+	return state.convert_to_json()
+
+@app.route('/getlegalmoves', methods = ['GET'])
+def getmoves():
+	return json.dumps(state.moves())
 
 
 

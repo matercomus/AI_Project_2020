@@ -35,7 +35,6 @@ class State:
 		:param player1s_turn:	A boolean indicating whether it is player 1's turn or not
 		:param p1/2_points:		Integer variables that hold each player's current points
 		:param p1/2_pending_points:	   Integer variables that hold each player's pending points
-		:param p1/2_perspective:A list of strings which represents each player's perspective of the deck
 		"""
 		self.__deck = deck
 

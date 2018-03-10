@@ -53,9 +53,13 @@ body {
   color: #fff;
   cursor: pointer;
 }
-#topbar button:hover {
+#topbar button:hover:enabled {
   background-color: #fff;
   color: #444;
+}
+
+#topbar button:disabled{
+  opacity:.2;
 }
 .message {
   position: fixed;

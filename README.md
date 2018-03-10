@@ -1,4 +1,3 @@
-
 Intelligent Systems 2018
 ========================
 This is the practical material for the Intelligent Systems course, based on the
@@ -27,7 +26,7 @@ You require a working Python 2.7 environment and a good text editor or an IDE. Y
 * [Linux](https://www.python.org/downloads/source/)
 * [Other](https://www.python.org/download/other/)
 
-The core game engine runs on pure Python, however you will need a few additional packages for tasks throughout the course. This is most easily done through [pip](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line, and the required packages can be obtained through one command:
+The core game engine runs on pure Python, however you will need a few additional packages for tasks throughout the course. This is most easily done through the standard Python package manager, [pip](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line, and the required packages can be obtained through one command:
 
 ```bash
 pip install numpy scipy matplotlib sklearn flask
@@ -71,7 +70,7 @@ Here are some quick use cases and solutions to help you get a feel for the code.
 ### Get the size of the stock
 Let 'state' be the state you're given and let's say you want the size of the stock. Then the following a should do the trick:
 ```python
-size_of stock = state.get_stock_size()
+size_of_stock = state.get_stock_size()
 ```
 
 ### Find out if I'm player 1 or 2
@@ -92,7 +91,7 @@ for i, card in enumerate(cards_hand):
 	print('Card {} in the hand is {} of {}'.format(i, rank,suit))
 ```
 
-NB: The deck of cards is represented through an array. Each index corresponds to a different card, as per the table below.
+The deck of cards is represented through a list. Each index corresponds to a different card, as per the table below.
 
 |          | Aces | 10s | Kings | Queens | Jacks |
 |:--------:|:----:|:---:|:-----:|:------:|:-----:|
@@ -109,7 +108,7 @@ state = State.generate()
 
 state = State.generate(25)
 # This will always generate the same starting state, to make testing/debugging your bots easier.
-# Note that any two states generated with the same seed will be identical, and 25 is only used as an example.
+# Note that any two states generated with the same seed will be identical, and 25 is only used here as an example.
 ```
 
 ### Check if two states are identical
@@ -153,15 +152,15 @@ Reading the code itself in addition to the documentation can help you get acquai
 ### I found a bit that could be implemented much better/more efficiently.
 
 Our main goal was to write code that was easy to read and to understand. To achieve
-this, we've made many methods much less efficient than they need to be. This
+this, we've made many methods less efficient than they need to be. This
 is especially important for a project like this where many of the students are 
 novice programmers. It is also a 
 [good principle](https://en.wikipedia.org/wiki/Program_optimization#When_to_optimize) 
 in general, at least when you write the first version of your code.
 
-You may feel that your bot is to slow with our State and Fleet objects for 
+You may feel that your bot is to slow with our State objects, for 
 instance if you're creating an evaluating lots of State objects in a deep
-minimax tree. Luckily, you're not tied to our API: simply take the State object 
+tree. Luckily, you're not tied to our API: simply take the State object 
 you're given and copy it to your own, more efficient, implementation. This may 
 get you another plie or two in the search tree, so if you really want to win the 
 competition it might be worth it.  

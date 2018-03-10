@@ -4,14 +4,17 @@
 
 // Add some arg options to server.py, so the parameters are not hard coded.
 
-// Interactive mode - clickable cards:
+// Look into making parameters I am carrying around global
 
-// var a = deck.cards[50].$el
-// undefined
-// $(a)
-// w.fn.init [div.card.diamonds.rank12]
-// $(a).click(function(){
-// alert("foo");})
+// Edge case of two possible marriages at the same time, however seems somewhat unlikely
+
+// Maybe give possible moves in the state json object from the backend
+
+// Maybe gray out submit button when no valid move is chosen
+
+// Add scores on top
+
+// Add delays
 
 
 // Removes all cards that are not needed to play Schnapsen
@@ -108,6 +111,10 @@ function orderCards(visualDeck, stock, trump_suit){
     new_cards_array = [];
     var trump_jack_index;
 
+    visualDeck.cards.forEach(function(card){
+        card.setSide("front");
+    });
+
     if(trump_suit == "C"){
         trump_jack_index = 4;
     } else if(trump_suit == "D"){
@@ -119,10 +126,6 @@ function orderCards(visualDeck, stock, trump_suit){
     }
 
     new_cards_array.push(visualDeck.backEndIndices[trump_jack_index]);
-
-    // for(i=0; i<stock.length; i++){
-    //     new_cards_array.push(visualDeck.backEndIndices[stock[i]]);
-    // }
 
     stock.forEach(function(stockIndex){
         if(new_cards_array.map(x => x.i).indexOf(visualDeck.backEndIndices[stockIndex].i) < 0){
@@ -139,7 +142,14 @@ function orderCards(visualDeck, stock, trump_suit){
     if(new_cards_array.length == visualDeck.cards.length){
         visualDeck.cards = new_cards_array;
     } else {
-        console.log(new_cards_array);
+        var arr = [];
+        new_cards_array.forEach(function(card){
+            if (typeof(arr[card.i]) == 'undefined'){
+                arr[card.i] = 1;
+            } else arr[card.i]++;
+        });
+        console.log(arr);
+
         alert("Card ordering error" + new_cards_array.length + " " + visualDeck.cards.length);}
 
     visualDeck.cards.forEach(function (card, index) {
@@ -272,6 +282,34 @@ function stateFinished(state){
     return false;
 }
 
+function getMarriage(moves){
+
+    marr = null;
+
+    moves.forEach(function(m){
+
+        //Reverse order so we can take advantage of lazy evaluation
+        if(m[1] !== null && m[0] !== null){
+            marr = m;
+        }
+    });
+
+    return marr;
+}
+
+function getTrumpExchange(moves){
+
+    trump_exchange = null;
+
+    moves.forEach(function(legalMove){
+        if(legalMove[0] === null){
+            trump_exchange = legalMove;
+        }
+    });
+
+    return trump_exchange;
+}
+
 function putTrickAway(deck, state){
 
     prev = state.deck.previous_trick;
@@ -326,12 +364,115 @@ function startGameLoop(deck, state){
 
 }
 
+function disableClickable(){
+    $("button").prop("disabled", true);
+    $(".card").unbind("click");
+    $(".card").css( 'cursor', 'default' );
+
+
+}
+
+function enableClickable(deck, state){
+    $("button").prop("disabled", false);
+
+    card_state = getCardStateArray(state);
+
+    $.ajax({
+        url: '/getlegalmoves',
+        type: 'GET',
+        success: function(response) {
+            moves = JSON.parse(response);
+            marriage = getMarriage(moves);
+            exchange = getTrumpExchange(moves)
+
+            if(marriage === null){
+                $("#marriage").prop("disabled", true);
+            }
+
+            if(exchange === null){
+                $("#exchange").prop("disabled", true);
+            }
+
+            moves.forEach(function(legalMove){
+                if(legalMove[0] !== null && legalMove[1] === null){
+                    $(deck.backEndIndices[legalMove[0]].$el).css( 'cursor', 'pointer' );
+
+                    $(deck.backEndIndices[legalMove[0]].$el).click(function(){
+
+                        moveCard(deck.backEndIndices[legalMove[0]], cardWidth, 0);
+                        move = [legalMove[0], null];
+
+                        $(".card").unbind("click");
+                        $(".card").css( 'cursor', 'default' );
+                    });
+
+                }
+            });
+
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
+function submitMove(){
+    if(move === null || move.length != 2){
+        alert("INVALID move submitted" + move);
+        return;
+    }
+
+    $.ajax({
+    url: '/sendmove',
+    type: 'POST',
+    data: JSON.stringify(move),
+    dataType: "json", 
+    //since we mentioned dataType json, we don't have to parse the response
+    success: function(response) {
+            gameLoop(deck, response);            
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });    
+
+
+}
+
+
+// This function manages player turns
+function gameLoop(deck, state){
+
+    baseState = state;
+
+    setUpCards(deck, state);
+
+    if (state.player1s_turn == true){
+        move = marriage = exchange = null;
+        enableClickable(deck, state);
+    } else {
+        disableClickable();
+        $.ajax({
+            url: '/next',
+            type: 'GET',
+            success: function(response) {
+                stateObject = JSON.parse(response);
+                gameLoop(deck, stateObject);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+
+}
+
 var height, width, font_size, cardHeight, cardWidth;
 
 var ordered = false;
 var stateObject = null;
 
-const INTERVAL = 100;
+const INTERVAL = 3000;
 
 // Get container
 var $container = document.getElementById('container');
@@ -342,13 +483,79 @@ var deck = schnapsenDeck();
 // Add container to DOM
 deck.mount($container);
 
+// var prefix = Deck.prefix;
+
+// var transform = prefix('transform');
+
+// var translate = Deck.translate;
+
+// var $topbar = $('topbar');
+
+var baseState;
+var move=null;
+var marriage=null;
+var exchange=null;
+
+$("#reset").click(function(){
+    setUpCards(deck, baseState);
+    enableClickable(deck, baseState);
+    move = null;
+});
+
+$("#submit").click(function(){
+    submitMove();
+});
+
+$("#marriage").click(function(){
+    // setUpCards(deck, baseState);
+    if (marriage !== null){
+        if(move !== null){
+            if(move[0] == marriage[0]){
+
+                moveCard(deck.backEndIndices[marriage[1]], 2*cardWidth, 0);
+                move = marriage;
+
+            } else if (move[0] == marriage[1]){
+
+                moveCard(deck.backEndIndices[marriage[0]], 2*cardWidth, 0);
+                move = [marriage[1], marriage[0]];
+
+            } else {
+                $("#reset").click();
+                $(deck.backEndIndices[marriage[0]].$el).click();
+                moveCard(deck.backEndIndices[marriage[1]], 2*cardWidth, 0);
+                move = marriage;
+            }
+        } else {
+            $(deck.backEndIndices[marriage[0]].$el).click();
+            moveCard(deck.backEndIndices[marriage[1]], 2*cardWidth, 0);
+            move = marriage;
+        }
+    }
+});
+
+$("#exchange").click(function(){
+    if (exchange !== null){
+        if(move !== null){
+            $("#reset").click();
+        } 
+
+        move = exchange;
+        submitMove();
+    }
+});
+
 $.ajax({
     url: '/generate',
     type: 'GET',
     success: function(response) {
         stateObject = JSON.parse(response);
         console.log(stateObject);
-        startGameLoop(deck, stateObject);
+        // setUpCards(deck, stateObject);
+        // enableClickable(deck, stateObject);
+        // startGameLoop(deck, stateObject);
+        gameLoop(deck, stateObject);
+        
     },
     error: function(error) {
         console.log(error);
