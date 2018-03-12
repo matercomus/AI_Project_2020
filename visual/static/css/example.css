@@ -58,6 +58,35 @@ body {
   color: #444;
 }
 
+#topbar #scoreboard1 {
+  margin-left:10px;
+  color:white;
+  float: left;
+  text-align: left;
+}
+
+#topbar #scoreboard2 {
+  margin-right:10px;
+  color:white;
+  float: right;
+  text-align: right;
+}
+
+#p1_points{
+  float:right;
+  margin-left: 10px;
+}
+
+#p2_points{
+  float:right;
+  margin-left: 10px;
+}
+
+#topbar #p2_points{
+  float:right;
+  margin-left: 10px;
+}
+
 #topbar button:disabled{
   opacity:.2;
 }

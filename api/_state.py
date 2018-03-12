@@ -562,12 +562,14 @@ class State:
 
 		if self.__signature is not None:
 			raise RuntimeError("Cannot convert partial information state to JSON")
-		return dumps({"deck":self.__deck.convert_to_json(), "phase":self.__phase, "leads_turn":self.__leads_turn, "player1s_turn":self.__player1s_turn, "p1_points":self.__p1_points, "p2_points":self.__p2_points, "p1_pending_points":self.__p1_pending_points, "p2_pending_points":self.__p2_pending_points, "signature":self.__signature, "revoked":self.__revoked})
+		return dumps({"deck":self.__deck.convert_to_json(), "moves":self.moves(), "finished":self.finished(), "phase":self.__phase, "leads_turn":self.__leads_turn, "player1s_turn":self.__player1s_turn, "p1_points":self.__p1_points, "p2_points":self.__p2_points, "p1_pending_points":self.__p1_pending_points, "p2_pending_points":self.__p2_pending_points, "signature":self.__signature, "revoked":self.__revoked})
 
 	@staticmethod
 	def load_from_json(dict):
 		"""
 		Creates a new state object from a JSON representation
+		Output from convert_to_json function must be given to json.loads()
+		before being handed to this function, as it is a string initially.
 		Written for the user interface
 		"""
 

@@ -1,19 +1,3 @@
-// TODO
-
-// Implement one-hot encoding in ml.py
-
-// Add some arg options to server.py, so the parameters are not hard coded.
-
-// Interactive mode - clickable cards:
-
-// var a = deck.cards[50].$el
-// undefined
-// $(a)
-// w.fn.init [div.card.diamonds.rank12]
-// $(a).click(function(){
-// alert("foo");})
-
-
 // Removes all cards that are not needed to play Schnapsen
 function schnapsenDeck(){
     fullDeck = Deck();
@@ -285,6 +269,8 @@ function putTrickAway(deck, state){
 }
 
 function startGameLoop(deck, state){
+
+    console.log(state);
 
     setUpCards(deck, state);
 

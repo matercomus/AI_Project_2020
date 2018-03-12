@@ -23,7 +23,7 @@ def play(
         player = player1 if state.whose_turn() == 1 else player2
 
         # We introduce a state signature which essentially obscures the deck's perfect knowledge from the player
-        given_state = state.clone(signature=state.whose_turn()) if state.get_phase() == 1 else state
+        given_state = state.clone(signature=state.whose_turn()) if state.get_phase() == 1 else state.clone()
 
         move = get_move(given_state, player, max_time, verbose)
 

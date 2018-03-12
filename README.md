@@ -14,8 +14,8 @@ Your job is to make a bot that will play this game.
 
 For this implementation of the game, we mostly followed the rules described in the above link, with a few caveats:
 * Partial information about the state of the deck is updated automatically, so you don't have to keep track of it yourself.
-* In the same vein, it is not the player's responsibility to keep track of their (and their enemy's) points, as it would be in regular Schnapsen. This is done automatically through the game engine, which also removes the aspect of having to declare that you have over 66 points in order to win the game.
-* "Closing the talon" is not implemented due to the increased branching factor caused by having to consider the aforementioned closing as an additional possibility.
+* In the same vein, it is not the player's responsibility to keep track of their (and their enemy's) points, as it would be in regular Schnapsen. This is done automatically through the game engine, which also removes the aspect of having to declare that you have reached 66 points in order to win the game.
+* "Closing the talon" is not implemented in order to have a clear separation between the imperfect information and the perfect information parts of the game, and also in order to avoid further increasing the branching factor.
 * Scoring is implemented as the rules would suggest. A player can receive 1-3 points for winning a round, depending on the score differential. However, play.py and tournament.py play the game only in terms of these rounds, not in terms of a "full game" described as playing rounds until one player reaches 7 points.
 
 ## Technical requirements
@@ -26,7 +26,7 @@ You require a working Python 2.7 environment and a good text editor or an IDE. Y
 * [Linux](https://www.python.org/downloads/source/)
 * [Other](https://www.python.org/download/other/)
 
-The core game engine runs on pure Python, however you will need a few additional packages for tasks throughout the course. This is most easily done through the standard Python package manager, [pip](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line, and the required packages can be obtained through one command:
+The core game engine runs on pure Python, however you will need to install a few additional packages for tasks throughout the course. This is most easily done through the standard Python package manager, [pip](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line, and the required packages can be obtained through one command:
 
 ```bash
 pip install numpy scipy matplotlib sklearn flask
@@ -182,6 +182,42 @@ Your best bet is to write your own script that does what you want, and have it c
 engine. Have a look at the function play(...) in  api/engine.py, or have it run a by 
 itself. See experiment.py for an example.
 
+## Visual interface
+
+To play Schnapsen via the visual interface, you must first make sure that you have Flask installed.
+
+```bash
+pip install flask
+```
+
+Then you can start a local server. The following example starts a server and sets rdeep as the opponent.
+
+```bash
+python visual/server.py --interactive -2 rdeep
+```
+
+Notice the "--interactive" flag; this signifies that you want to play against a bot,
+instead of spectating a match between two bots.
+
+The "-2" flag is followed by the name of the bot you want to play against. This format is
+similar to _play.py_.
+
+Once your server is up and running, you can fire up your favorite (modern) web browser and visit
+[http://127.0.0.1:5000/](http://127.0.0.1:5000/), the local address where your server is listening.
+
+The controls are fairly straightforward; click on the card that you want to play to place it on
+the table. You can decide to play this move by clicking the "Submit move" button on the top bar, or you can
+change your mind with "Reset move". Whenever you have a complex move available, such as a marriage or
+a trump jack exchange, the corresponding buttons on the top bar will become available. Finally, you can
+use SHIFT + R to start a new game at any time.
+
+
 ## Changes from last year's challenge
 
-The codebase has been rewritten entirely, so bots from last year won't work. This year the game of Schnapsen is being introduced to take the place of Planet Wars.
+The codebase has been rewritten entirely, so last year's bots won't work. This year the game Schnapsen is being introduced to take the place of Planet Wars.
+
+## Attributions
+
+Vectorized Playing Card Graphics 2.0 - http://sourceforge.net/projects/vector-cards/  
+Copyright 2015 - Chris Aguilar - conjurenation@gmail.com  
+Licensed under LGPL 3 - www.gnu.org/copyleft/lesser.html
