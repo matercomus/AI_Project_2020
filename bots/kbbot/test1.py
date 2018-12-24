@@ -17,7 +17,7 @@ kb.add_clause(B, ~C)
 
 # Print all models of the knowledge base
 for model in kb.models():
-    print model
+    print(model)
 
 # Print out whether the KB is satisfiable (if there are no models, it is not satisfiable)
-print kb.satisfiable()
+print(kb.satisfiable())

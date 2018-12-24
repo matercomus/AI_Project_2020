@@ -82,7 +82,7 @@ class Constraint(Symbol):
         self._right = Constant(self._right.value() - symbols[None])
 
         nwterms = []
-        for name, mult in symbols.iteritems():
+        for name, mult in symbols.items():
             if name is not None:
                 nwterms.append(Integer(name, mult))
 
@@ -680,7 +680,7 @@ def optimize(*constraints):
 def is_feasible(model):
 
     constraints = []
-    for symbol, value in model.iteritems():
+    for symbol, value in model.items():
         if isinstance(symbol, Constraint):
             if value:
                 constraints.append(symbol)
@@ -710,4 +710,3 @@ def union(*lists):
                 result.append(symbol)
 
     return result
-

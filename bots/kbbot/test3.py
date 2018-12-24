@@ -20,4 +20,4 @@ kb.add_clause(???)
 kb.add_clause(???)
 
 for model in kb.models():
-    print model
+    print(model)

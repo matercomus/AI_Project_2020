@@ -11,7 +11,7 @@ class Deck:
 	# A list of length 20 representing all cards and their states
 	__card_state = None # type: list[str]
 
-	# A list of length 20 representing all KNOWN cards and 
+	# A list of length 20 representing all KNOWN cards and
 	# their states from the perspective of each player
 	__p1_perspective = None
 	__p2_perspective = None
@@ -78,7 +78,7 @@ class Deck:
 	@staticmethod
 	def get_rank(index):
 		return Deck.__RANKS[index % 5]
-		
+
 
 	# Computes the suit of a given card index, following the ordering given above.
 	@staticmethod
@@ -125,7 +125,7 @@ class Deck:
 	# Returns whether the specified player is able to exchange the trump card for its trump jack.
 	def can_exchange(self, player):
 
-		# Depending on whether this state is signed or not, we look either through 
+		# Depending on whether this state is signed or not, we look either through
 		# the perspective of the full card deck, or the perspective of a single player
 		perspective = self.get_perspective()
 
@@ -203,7 +203,7 @@ class Deck:
 	# Player perspectives are also updated
 	def put_trick_away(self, winner):
 		self.__card_state[self.__trick[0]] = self.__card_state[self.__trick[1]] = self.__p1_perspective[self.__trick[0]] = self.__p1_perspective[self.__trick[1]] = self.__p2_perspective[self.__trick[0]] = self.__p2_perspective[self.__trick[1]] = "P1W" if winner == 1 else "P2W"
-		
+
 		# Don't need to make a deep copy in this instance, tested.
 		self.__previous_trick = self.__trick;
 		self.__trick = [None, None]
@@ -226,12 +226,12 @@ class Deck:
 	# Generates a new deck based on a seed. If no seed is given, a random seed in generated.
 	@staticmethod
 	def generate(id=None):
-		
+
 		if id is None:
 			id = random.randint(0, 100000)
 
 		rng = random.Random(id)
-		shuffled_cards = range(20)
+		shuffled_cards = list(range(20))
 		rng.shuffle(shuffled_cards)
 
 		card_state = [0]*20
@@ -247,7 +247,7 @@ class Deck:
 		# stock cards are pushed onto the stock stack to save their order.
 		# Perspectives are also generated.
 		for i in range(10):
-			card_state[shuffled_cards[i]] = "S"				
+			card_state[shuffled_cards[i]] = "S"
 			stock.append(shuffled_cards[i])
 
 		for i in range(10, 15):
@@ -264,7 +264,7 @@ class Deck:
 		"""
 		Identifies all unknown cards from the perspective of
 		the relevant player, and makes guesses for their states.
-		
+
 		:param seed: Optional random number generator seed.
 		:return: A deck object with the card_state array changed
 		to represent a random guess of the states of the unknown cards.
@@ -305,7 +305,7 @@ class Deck:
 
 	def clone(self, signature):
 		deck = Deck(list(self.__card_state), list(self.__stock), list(self.__p1_perspective), list(self.__p2_perspective), self.__trump_suit)
-		
+
 		deck.__signature = signature if self.__signature is None else self.__signature
 		deck.__trick = list(self.__trick)
 		deck.__previous_trick = list(self.__previous_trick) if self.__previous_trick is not None else None
@@ -339,5 +339,3 @@ class Deck:
 
 	def __ne__(self, o):
 		return not (self.__card_state == o.__card_state and self.__p1_perspective == o.__p1_perspective and self.__p2_perspective == o.__p2_perspective and self.__trick == o.__trick and self.__stock == o.__stock and self.__trump_suit == o.__trump_suit and self.__signature == o.__signature)
-
-
