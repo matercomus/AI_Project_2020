@@ -5,10 +5,10 @@ card based strategy game _Schnapsen_.
 
 ## Getting started
 
-To get to know the concept of the game, please visit 
+To get to know the concept of the game, please visit
 [this web page](https://www.pagat.com/marriage/schnaps.html).
 
-Your job is to make a bot that will play this game. 
+Your job is to make a bot that will play this game.
 
 ## Particularities of our implementation
 
@@ -29,30 +29,30 @@ You require a working Python 2.7 environment and a good text editor or an IDE. Y
 The core game engine runs on pure Python, however you will need to install a few additional packages for tasks throughout the course. This is most easily done through the standard Python package manager, [pip](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line, and the required packages can be obtained through one command:
 
 ```bash
-pip install numpy scipy matplotlib sklearn flask
+pip install sklearn matplotlib flask
 ```
 
 ### Python knowledge
 
-You will of course also need a working knowledge of python. If you're looking to 
+You will of course also need a working knowledge of python. If you're looking to
 brush up on your skills, there are many good tutorials available. For instance:
  * https://www.learnpython.org/
- * https://www.codecademy.com/ 
- 
+ * https://www.codecademy.com/
+
 You do not need to be an expert in python to write a functioning bot. If you
-already know another programming language, you should be able to get going within 
-a day. You'll pick up the details as the project progresses. However, there are 
-a few things that are important to understand. Check if you know what the 
+already know another programming language, you should be able to get going within
+a day. You'll pick up the details as the project progresses. However, there are
+a few things that are important to understand. Check if you know what the
 following mean. If not, take some time to google them and read up:
 
 #### Call-by-reference (and "call-by-value")
 
 What happens if I pass a function a 'State' object, and the function changes the
-object? Do I keep an unchanged state, or does my state change as well? 
+object? Do I keep an unchanged state, or does my state change as well?
 
 #### Object oriented programming
 
-What's the difference between a class and an object? How are these expressed in python? 
+What's the difference between a class and an object? How are these expressed in python?
 What does the _self_ keyword do?
 
 #### Recursion
@@ -153,33 +153,33 @@ Reading the code itself in addition to the documentation can help you get acquai
 
 Our main goal was to write code that was easy to read and to understand. To achieve
 this, we've made many methods less efficient than they need to be. This
-is especially important for a project like this where many of the students are 
-novice programmers. It is also a 
-[good principle](https://en.wikipedia.org/wiki/Program_optimization#When_to_optimize) 
+is especially important for a project like this where many of the students are
+novice programmers. It is also a
+[good principle](https://en.wikipedia.org/wiki/Program_optimization#When_to_optimize)
 in general, at least when you write the first version of your code.
 
-You may feel that your bot is to slow with our State objects, for 
+You may feel that your bot is to slow with our State objects, for
 instance if you're creating an evaluating lots of State objects in a deep
-tree. Luckily, you're not tied to our API: simply take the State object 
-you're given and copy it to your own, more efficient, implementation. This may 
-get you another plie or two in the search tree, so if you really want to win the 
+tree. Luckily, you're not tied to our API: simply take the State object
+you're given and copy it to your own, more efficient, implementation. This may
+get you another plie or two in the search tree, so if you really want to win the
 competition it might be worth it.  
 
 ### I found a bug/improvement. Can I fork the project and send a pull request?
 
-Sure! Just remember this is not a regular project: we've tried to minimize the 
-amount of advanced python, and the number of dependencies. So, it might be that 
-we're aware of the potential improvement, but we haven't used it just to keep the 
+Sure! Just remember this is not a regular project: we've tried to minimize the
+amount of advanced python, and the number of dependencies. So, it might be that
+we're aware of the potential improvement, but we haven't used it just to keep the
 code simple for novice programmers.  
 
 ### The command-line scripts (play.py, tournament.py) make it difficult to do X
 
-The command line scripts provide a convenient starting point, but if you want to do 
-something more complex (like try a range of parameters for your bot), they are probably 
-too limited. 
+The command line scripts provide a convenient starting point, but if you want to do
+something more complex (like try a range of parameters for your bot), they are probably
+too limited.
 
-Your best bet is to write your own script that does what you want, and have it call the 
-engine. Have a look at the function play(...) in  api/engine.py, or have it run a by 
+Your best bet is to write your own script that does what you want, and have it call the
+engine. Have a look at the function play(...) in  api/engine.py, or have it run a by
 itself. See experiment.py for an example.
 
 ## Visual interface
