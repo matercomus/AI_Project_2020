@@ -63,7 +63,7 @@ function moveCard(card, xc, yc, rotc=0){
         delay: 100,
         duration: 500,
         ease: 'quartOut',
-        
+
         x: xc, //Math.random() * window.innerWidth - window.innerWidth / 2,
         y: yc, //Math.random() * window.innerHeight - window.innerHeight / 2
         rot: rotc
@@ -179,7 +179,7 @@ function arrangeCards(visualDeck, backEndState){
         }
 
         if(card_state == "P1H"){
-            
+
 
             x = (-2 + p1placed) * cardWidth;
             y = height/4;
@@ -254,7 +254,7 @@ function setUpCards(visualDeck, backEndState){
 }
 
 function getCardStateArray(backEndState, perspective=false){
-    
+
     // Since perspectives stop being updated once the 2nd phase of the game starts, take the
     // full card state directly because that is the extend of both player's information in phase 2
     var card_state = (perspective && backEndState.phase == 1) ? backEndState.deck.p1_perspective : backEndState.deck.card_state;
@@ -377,7 +377,7 @@ function enableClickable(deck, state){
 
 function submitMove(){
     if(move === null || move.length != 2){
-        alert("INVALID move submitted" + move);
+        alert("INVALID move submitted: " + move);
         return;
     }
 
@@ -385,7 +385,7 @@ function submitMove(){
         url: '/sendmove',
         type: 'POST',
         data: JSON.stringify(move),
-        dataType: "json", 
+        dataType: "json",
         //since we mentioned dataType json, we don't have to parse the response
         success: function(newState) {
             gameLoop(deck, newState);
@@ -393,7 +393,7 @@ function submitMove(){
         error: function(error) {
             console.log(error);
         }
-    });    
+    });
 
 
 }
@@ -401,7 +401,7 @@ function submitMove(){
 function other(player){
     if(player == 1){
         return 2;
-    } 
+    }
     return 1;
 }
 
@@ -498,7 +498,7 @@ function newGame(deck){
             setTimeout(function(){
                 gameLoop(deck, stateObject);
             }, 500);
-            
+
         },
         error: function(error) {
             console.log(error);
@@ -579,7 +579,7 @@ $("#exchange").click(function(){
     if (exchange !== null){
         if(move !== null){
             $("#reset").click();
-        } 
+        }
 
         move = exchange;
         submitMove();

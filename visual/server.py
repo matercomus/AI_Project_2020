@@ -52,8 +52,8 @@ def send():
 	move = (data[0], data[1])
 	state = state.next(move)
 	return state.convert_to_json()
-	
-	
+
+
 @app.route('/getcurrent', methods = ['GET'])
 def getcurrent():
 	return state.convert_to_json()
@@ -63,7 +63,7 @@ def getcurrent():
 def worker():
 	# read json + reply
 	data = request.get_json(force=True)
-	print data
+	print(data)
 	result = ''
 
 	for item in data:
@@ -104,4 +104,3 @@ if __name__ == '__main__':
 
 
 	app.run(debug=True)
-
