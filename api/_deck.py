@@ -227,9 +227,6 @@ class Deck:
 	@staticmethod
 	def generate(id=None):
 
-		if id is None:
-			id = random.randint(0, 100000)
-
 		rng = random.Random(id)
 		shuffled_cards = list(range(20))
 		rng.shuffle(shuffled_cards)

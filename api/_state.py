@@ -288,8 +288,6 @@ class State:
 		:return: A starting state generated using the parameters given
 		"""
 
-		if id is None:
-			id = random.randint(0, 100000)
 		rng = random.Random(id)
 		deck = Deck.generate(id)
 		player1s_turn = rng.choice([True, False])
