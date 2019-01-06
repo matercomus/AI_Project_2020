@@ -25,7 +25,7 @@ def run_tournament(options):
     totalgames = (n*n - n)/2 * options.repeats
     playedgames = 0
 
-    print('Playing {} games:'.format(totalgames))
+    print('Playing {} games:'.format(int(totalgames)))
     for a, b in matches:
         for r in range(options.repeats):
 

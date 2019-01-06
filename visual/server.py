@@ -18,31 +18,26 @@ app.config.update(
 	PROPAGATE_EXCEPTIONS = True
 )
 
-
-
 @app.route('/')
 def output():
 	# serve index template
 	# return "Welcome to python flask!"
-	temp = "index_interactive.html" if options.interactive else "index.html"
-	return render_template(temp)
+	return render_template("index_interactive.html")
 
 @app.route('/generate', methods = ['GET'])
 def generate():
 	global state
 	# Use 3 for marriage, 50 for exchange
-	state = State.generate()
+	state = State.generate(id=options.seed, phase=options.phase)
 	return state.convert_to_json() #[:-1] + ', "seed": ' + str(id) + '}')
 
 @app.route('/next', methods = ['GET'])
 def new():
 	global state
 
-	player = player1 if (state.whose_turn() == 1 and not options.interactive) else player2
-
 	given_state = state.clone(signature=state.whose_turn()) if state.get_phase() == 1 else state.clone()
 
-	state = state.next(player.get_move(given_state))
+	state = state.next(player2.get_move(given_state))
 	return state.convert_to_json()
 
 @app.route('/sendmove', methods = ['POST'])
@@ -78,28 +73,29 @@ if __name__ == '__main__':
 	## Parse the command line options
 	parser = ArgumentParser()
 
-	parser.add_argument("-i", "--interactive",
-						dest="interactive",
-						help="Which phase the game should start at.",
-						action="store_true")
-
-	# player 1 & 2
-	parser.add_argument("-1", "--player1",
-						dest="player1",
-						help="the program to run for player 1 (default: rand). Note: only set player 1 if you are not playing interactively",
-						default="rand")
-
-	parser.add_argument("-2", "--player2",
+	parser.add_argument("-o", "--opponent",
 						dest="player2",
-						help="the program to run for player 2 (default: rand)",
+						help="the bot to run as your opponent (default: rand)",
 						default="rand")
+
+	parser.add_argument("-s", "--seed",
+						dest="seed",
+						type=int,
+						help="The seed for state generation. Same seed will always return the same state, useful for debugging.",
+						default=None)
+
+	parser.add_argument("-p", "--phase",
+						dest="phase",
+						type=int,
+						choices=[1,2],
+						help="The seed for state generation. Same seed will always return the same state, useful for debugging.",
+						default=1)
 
 
 
 	options = parser.parse_args()
 
 	state = None
-	player1 = util.load_player(options.player1)
 	player2 = util.load_player(options.player2)
 
 

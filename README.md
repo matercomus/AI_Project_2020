@@ -1,4 +1,4 @@
-Intelligent Systems 2018
+Intelligent Systems 2019
 ========================
 This is the practical material for the Intelligent Systems course, based on the
 card based strategy game _Schnapsen_.
@@ -20,13 +20,27 @@ For this implementation of the game, we mostly followed the rules described in t
 
 ## Technical requirements
 
-You require a working Python 2.7 environment and a good text editor or an IDE. You can download Python 2.7 for your machine from the following sources:  
-* [Windows](https://www.python.org/downloads/windows/)  
+You require a working Python 3.x environment and a good text editor or an IDE. You can download Python 3.7 for your machine from the following sources:  
+* [Windows](https://www.python.org/downloads/windows/) _Note that the code runs significantly slower on Windows due to the way process management is implemented._
 * [MacOS](https://www.python.org/downloads/mac-osx/)  
 * [Linux](https://www.python.org/downloads/source/)
 * [Other](https://www.python.org/download/other/)
 
-The core game engine runs on pure Python, however you will need to install a few additional packages for tasks throughout the course. This is most easily done through the standard Python package manager, [pip](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line, and the required packages can be obtained through one command:
+For more advanced Windows users that want to use the Linux bash without a virtual machine or dual-booting, consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Once set up, this lets you use the command line interface of the respective Linux distribution you chose, with access to the Windows File System. For Linux newcomers, we suggest using Ubuntu. You can then install Python3 and pip through the following command, in case they are not pre-installed. For other distributions, use the equivalent package manager.
+
+```bash
+sudo apt install python3 python3-pip
+```
+
+For the regular Windows Python installation, be sure to select the _"Add Python 3.x to PATH"_ option in the installation dialogue, so that you can access Python through your command line.
+
+The core game engine runs on pure Python, however you will need to install a few additional packages for tasks throughout the course. This is most easily done through the standard Python package manager, pip. You will most likely already have pip after the Python 3.x installation. You can check by running the following command in your command line interface.
+
+```bash
+pip -V
+```
+
+If this fails, you can find installation instructions [here](https://pip.pypa.io/en/stable/installing/). Once installed, pip can be accessed from the command line interface, and the required packages can be obtained through the following command:
 
 ```bash
 pip install sklearn matplotlib flask
@@ -115,19 +129,31 @@ state = State.generate(25)
 
 ```python
 state = State.generate(1)
-same_state = State.generate(1)
-diff_state = State.generate(2)
 
-# The equality and inequality operators are overridden for State objects, so you can check if all parameters of two states match.
+# same_state is not the same object as state,
+# but all attributes are identical.
+same_state = State.generate(1)
+
+diff_state = State.generate(2) 
+
+# The equality and inequality operators are overridden for State
+# objects, so you can check if all parameters of two states match.
 
 state == same_state # Evaluates to True
 state == diff_state # Evaluates to False
-state != diff_state # Evaluates to True
 ```
 
 ### Print a representation of the generated state
 ```python
-print state
+>>> print(state)
+
+The game is in phase: 1
+Player 1's points: 0, pending: 0
+Player 2's points: 0, pending: 0
+The trump suit is: C
+Player 1's hand: QC JD 10H JH 10S
+Player 2's hand: 10C AD 10D KH JS
+There are 10 cards in the stock
 ```
 ### Get own/opponent's points
 
@@ -141,7 +167,7 @@ opponents_points = state.get_points(opponent)
 
 ### Get familiar with the State API
 
-Every state-related function you will use when building your bot can be found, fully documented, in the State class, located in api/_state.py.
+Every state-related function you will use when building your bot can be found, fully documented, in the State class, located in api/_state.py. We *highly recommend* that you read through this class to understand the capabilities available to you when writing your bots.
 
 Note that you only have access to public functions. Private functions, i.e. functions whose name starts with two underscores "__" are used for the internal implementation of the game and are abstracted away from the player.
 
@@ -184,23 +210,19 @@ itself. See experiment.py for an example.
 
 ## Visual interface
 
-To play Schnapsen via the visual interface, you must first make sure that you have Flask installed.
+To play Schnapsen via the visual interface, you must first make sure that you have Flask installed. Then you can start a local server. The following example starts a server and sets rdeep as the opponent.
 
 ```bash
-pip install flask
+python visual/server.py --opponent rdeep
 ```
 
-Then you can start a local server. The following example starts a server and sets rdeep as the opponent.
+The "--opponent" flag is followed by the name of the bot you want to play against.
+
+To see a full list of parameters and their usage, run:
 
 ```bash
-python visual/server.py --interactive -2 rdeep
+python visual/server.py --help
 ```
-
-Notice the "--interactive" flag; this signifies that you want to play against a bot,
-instead of spectating a match between two bots.
-
-The "-2" flag is followed by the name of the bot you want to play against. This format is
-similar to _play.py_.
 
 Once your server is up and running, you can fire up your favorite (modern) web browser and visit
 [http://127.0.0.1:5000/](http://127.0.0.1:5000/), the local address where your server is listening.
@@ -214,7 +236,7 @@ use SHIFT + R to start a new game at any time.
 
 ## Changes from last year's challenge
 
-The codebase has been rewritten entirely, so last year's bots won't work. This year the game Schnapsen is being introduced to take the place of Planet Wars.
+The codebase has been ported to Python 3. A visual interface has been added, along with minor fixes and improvements. Bots from last year can be used this year as well.
 
 ## Attributions
 

@@ -297,7 +297,7 @@ class State:
 		if phase == 2:
 			while state.__phase == 1:
 				if state.finished():
-					return State.generate(id+1, phase) # Father forgive me
+					return State.generate(id if id is None else id+1, phase) # Father forgive me
 
 				state = state.next(rng.choice(state.moves()))
 

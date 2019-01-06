@@ -443,6 +443,7 @@ function gameLoop(deck, state){
         if (state.player1s_turn == true){
 
             move = marriage = exchange = null;
+            disableCardClickable();
             enableClickable(deck, state);
 
         } else {
