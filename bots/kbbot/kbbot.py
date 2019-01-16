@@ -9,9 +9,9 @@ from load.py.
 """
 
 from api import State, util
-import random, load
-
-from kb import KB, Boolean, Integer
+import random
+from . import load
+from .kb import KB, Boolean, Integer
 
 class Bot:
 

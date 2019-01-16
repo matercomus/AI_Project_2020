@@ -1,4 +1,4 @@
-import kb, sys
+import sys
 from kb import KB, Boolean, Integer, Constant
 
 # Define our propositional symbols

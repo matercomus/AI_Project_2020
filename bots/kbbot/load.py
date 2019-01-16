@@ -1,4 +1,4 @@
-from kb import KB, Boolean, Integer
+from .kb import KB, Boolean, Integer
 
 # Initialise all variables that you need for you strategies and game knowledge.
 # Add those variables here.. The following list is complete for the Play Jack strategy.
