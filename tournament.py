@@ -8,7 +8,7 @@ python play.py -h
 
 from argparse import ArgumentParser
 from api import State, util, engine
-import random
+import random, time
 
 def run_tournament(options):
 
@@ -35,21 +35,20 @@ def run_tournament(options):
                 p = [b, a]
 
             # Generate a state with a random seed
-            start = State.generate(phase=int(options.phase))
+            state = State.generate(phase=int(options.phase))
 
-            winner = engine.play(bots[p[0]], bots[p[1]], start, options.max_time*1000, verbose=False)
+            winner, score = engine.play(bots[p[0]], bots[p[1]], state, options.max_time*1000, verbose=False, fast=options.fast)
 
-            #TODO: ALSO IMPLEMENT POINTS FOR WINNING
             if winner is not None:
-                winner = p[winner[0] - 1]
-                wins[winner] += 1
+                winner = p[winner - 1]
+                wins[winner] += score
 
             playedgames += 1
             print('Played {} out of {:.0f} games ({:.0f}%): {} \r'.format(playedgames, totalgames, playedgames/float(totalgames) * 100, wins))
 
     print('Results:')
     for i in range(len(bots)):
-        print('    bot {}: {} wins'.format(bots[i], wins[i]))
+        print('    bot {}: {} points'.format(bots[i], wins[i]))
 
 
 if __name__ == "__main__":
@@ -76,6 +75,11 @@ if __name__ == "__main__":
                         dest="max_time",
                         help="maximum amount of time allowed per turn in seconds (default: 5)",
                         type=int, default=5)
+
+    parser.add_argument("-f", "--fast",
+                        dest="fast",
+                        action="store_true",
+                        help="This option forgoes the engine's check of whether a bot is able to make a decision in the allotted time, so only use this option if you are sure that your bot is stable.")
 
     options = parser.parse_args()
 

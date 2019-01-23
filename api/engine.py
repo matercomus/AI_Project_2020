@@ -5,11 +5,12 @@ from api import State, Deck, util
 from multiprocessing import Process, Manager
 
 def play(
-            player1,
-            player2,
+            player1,            # type: Bot
+            player2,            # type: Bot
             state,              # type: State
             max_time=5000,      # type: int
-            verbose=True        # type: bool
+            verbose=True,       # type: bool
+            fast=False          # type: bool
         ):
     """
     Play a game between two given players, from the given starting state.
@@ -25,7 +26,7 @@ def play(
         # We introduce a state signature which essentially obscures the deck's perfect knowledge from the player
         given_state = state.clone(signature=state.whose_turn()) if state.get_phase() == 1 else state.clone()
 
-        move = get_move(given_state, player, max_time, verbose)
+        move = player.get_move(given_state) if fast else get_move(given_state, player, max_time, verbose)
 
         if is_valid(move, player): # check for common mistakes
 

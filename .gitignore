@@ -1,6 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 
 *.pdf
+*.pkl
 
 todo.txt
 check_kbbot.py
