@@ -141,9 +141,8 @@ def features(state):
 
     perspective = state.get_perspective()
 
-    # Convert the card state array containing strings, to an array of integers.
-    # The integers here just represent card state IDs. In a way they can be
-    # thought of as arbitrary, as long as they are different from each other.
+    # Perform one-hot encoding on the perspective.
+    # Learn more about one-hot here: https://machinelearningmastery.com/how-to-one-hot-encode-sequence-data-in-python/
     perspective = [card if card != 'U'   else [1, 0, 0, 0, 0, 0] for card in perspective]
     perspective = [card if card != 'S'   else [0, 1, 0, 0, 0, 0] for card in perspective]
     perspective = [card if card != 'P1H' else [0, 0, 1, 0, 0, 0] for card in perspective]

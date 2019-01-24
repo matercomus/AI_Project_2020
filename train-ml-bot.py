@@ -6,11 +6,16 @@ Every observed state is converted to a feature vector and labeled with the event
 This is part of the second worksheet.
 """
 from api import State, util
+import pickle
+import os.path
+from argparse import ArgumentParser
+import time
+import sys
 
 # This package contains various machine learning algorithms
-import sys
 import sklearn
 import sklearn.linear_model
+from sklearn.neural_network import MLPClassifier
 from sklearn.externals import joblib
 
 from bots.rand import rand
@@ -18,71 +23,132 @@ from bots.rand import rand
 
 from bots.ml.ml import features
 
-# How many games to play
-GAMES = 10000
+def create_dataset(path, player=rand.Bot(), games=2000, phase=1):
 
-# Which phase the game starts in
-PHASE = 1
+    data = []
+    target = []
 
-# The player we'll observe
-player = rand.Bot()
-# player = rdeep.Bot()
+    # For progress bar
+    bar_length = 30
+    start = time.time()
 
-data = []
-target = []
+    for g in range(games-1):
 
-for g in range(GAMES):
+        # For progress bar
+        if g % 10 == 0:
+            percent = 100.0*g/games
+            sys.stdout.write('\r')
+            sys.stdout.write("Generating dataset: [{:{}}] {:>3}%".format('='*int(percent/(100.0/bar_length)),bar_length, int(percent)))
+            sys.stdout.flush()
 
-    # Randomly generate a state object starting in specified phase.
-    state = State.generate(phase=PHASE)
+        # Randomly generate a state object starting in specified phase.
+        state = State.generate(phase=phase)
 
-    state_vectors = []
+        state_vectors = []
 
-    while not state.finished():
+        while not state.finished():
 
-        # Give the state a signature if in phase 1, obscuring information that a player shouldn't see.
-        given_state = state.clone(signature=state.whose_turn()) if state.get_phase() == 1 else state
+            # Give the state a signature if in phase 1, obscuring information that a player shouldn't see.
+            given_state = state.clone(signature=state.whose_turn()) if state.get_phase() == 1 else state
 
-        # Add the features representation of a state to the state_vectors array
-        state_vectors.append(features(given_state))
+            # Add the features representation of a state to the state_vectors array
+            state_vectors.append(features(given_state))
 
-        # Advance to the next state
-        move = player.get_move(given_state)
-        state = state.next(move)
+            # Advance to the next state
+            move = player.get_move(given_state)
+            state = state.next(move)
 
-    winner, score = state.winner()
+        winner, score = state.winner()
 
-    for state_vector in state_vectors:
-        data.append(state_vector)
+        for state_vector in state_vectors:
+            data.append(state_vector)
 
-        if winner == 1:
-            result = 'won'
+            if winner == 1:
+                result = 'won'
 
-        elif winner == 2:
-            result = 'lost'
+            elif winner == 2:
+                result = 'lost'
 
-        target.append(result)
+            target.append(result)
 
-    sys.stdout.write(".")
-    sys.stdout.flush()
-    if g % (GAMES/10) == 0:
-        print("")
-        print('game {} finished ({}%)'.format(g, (g/float(GAMES)*100)))
+    with open(path, 'wb') as output:
+        pickle.dump((data, target), output, pickle.HIGHEST_PROTOCOL)
 
-# Train a logistic regression model
-learner = sklearn.linear_model.LogisticRegression()
-model = learner.fit(data, target)
+    # For printing newline after progress bar
+    print("\nDone. Time to generate dataset: {:.2f} seconds".format(time.time() - start))
 
-# Check for class imbalance
-count = {}
-for str in target:
-    if str not in count:
-        count[str] = 0
-    count[str] += 1
+    return data, target
 
-print('instances per class: {}'.format(count))
 
-# Store the model in the ml directory
-joblib.dump(model, './bots/ml/model.pkl')
+## Parse the command line options
+parser = ArgumentParser()
 
-print('Done')
+parser.add_argument("-p",
+                    dest="path",
+                    help="Optional dataset path",
+                    default="dataset.pkl")
+
+parser.add_argument("-d",
+                    dest="create_dataset",
+                    action="store_true",
+                    help="Whether to create a new dataset regardless of whether one already exists")
+
+parser.add_argument("--no-train",
+                    dest="train",
+                    action="store_false",
+                    help="Don't train a model after generating dataset.")
+
+
+options = parser.parse_args()
+
+if options.create_dataset or not os.path.isfile(options.path):
+    create_dataset(options.path, player=rand.Bot(), games=10000)
+
+if options.train:
+
+    # Play around with the model parameters below
+
+    # HINT: Use tournament fast mode (-f flag) to quickly test your different models.
+
+    # The following tuple specifies the number of hidden layers in the neural
+    # network, as well as the number of layers, implicitly through its length.
+    # You can set any number of hidden layers, even just one. Experiment and see what works.
+    hidden_layer_sizes = (64, 32)
+
+    # The learning rate determines how fast we move towards the optimal solution.
+    # A low learning rate will converge slowly, but a large one might overshoot.
+    learning_rate = 0.0001
+
+    # The regularization term aims to prevent overfitting, and we can tweak its strength here.
+    regularization_strength = 0.0001
+
+    #############################################
+
+    start = time.time()
+
+    print("Starting training phase...")
+
+    with open(options.path, 'rb') as output:
+        data, target = pickle.load(output)
+
+    # Train a neural network
+    learner = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, learning_rate_init=learning_rate, alpha=regularization_strength, verbose=True, early_stopping=True, n_iter_no_change=6)
+    # learner = sklearn.linear_model.LogisticRegression()
+
+    model = learner.fit(data, target)
+
+    # Check for class imbalance
+    count = {}
+    for t in target:
+        if t not in count:
+            count[t] = 0
+        count[t] += 1
+
+    print('instances per class: {}'.format(count))
+
+    # Store the model in the ml directory
+    joblib.dump(model, './bots/ml/model.pkl')
+
+    end = time.time()
+
+    print('Done. Time to train:', (end-start)/60, 'minutes.')
