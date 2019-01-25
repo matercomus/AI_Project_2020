@@ -83,15 +83,20 @@ def create_dataset(path, player=rand.Bot(), games=2000, phase=1):
 ## Parse the command line options
 parser = ArgumentParser()
 
-parser.add_argument("-p",
-                    dest="path",
+parser.add_argument("-d", "--dset-path",
+                    dest="dset_path",
                     help="Optional dataset path",
                     default="dataset.pkl")
 
-parser.add_argument("-d",
-                    dest="create_dataset",
+parser.add_argument("-m", "--model-path",
+                    dest="model_path",
+                    help="Optional model path. Note that this path starts in bots/ml/ instead of the base folder, like dset_path above.",
+                    default="model.pkl")
+
+parser.add_argument("-o", "--overwrite",
+                    dest="overwrite",
                     action="store_true",
-                    help="Whether to create a new dataset regardless of whether one already exists")
+                    help="Whether to create a new dataset regardless of whether one already exists at the specified path.")
 
 parser.add_argument("--no-train",
                     dest="train",
@@ -101,8 +106,8 @@ parser.add_argument("--no-train",
 
 options = parser.parse_args()
 
-if options.create_dataset or not os.path.isfile(options.path):
-    create_dataset(options.path, player=rand.Bot(), games=10000)
+if options.overwrite or not os.path.isfile(options.dset_path):
+    create_dataset(options.dset_path, player=rand.Bot(), games=10000)
 
 if options.train:
 
@@ -128,7 +133,7 @@ if options.train:
 
     print("Starting training phase...")
 
-    with open(options.path, 'rb') as output:
+    with open(options.dset_path, 'rb') as output:
         data, target = pickle.load(output)
 
     # Train a neural network
@@ -147,7 +152,7 @@ if options.train:
     print('instances per class: {}'.format(count))
 
     # Store the model in the ml directory
-    joblib.dump(model, './bots/ml/model.pkl')
+    joblib.dump(model, "./bots/ml/" + options.model_path)
 
     end = time.time()
 
