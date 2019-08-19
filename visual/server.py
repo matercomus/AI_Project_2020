@@ -88,7 +88,7 @@ if __name__ == '__main__':
 						dest="phase",
 						type=int,
 						choices=[1,2],
-						help="The seed for state generation. Same seed will always return the same state, useful for debugging.",
+						help="The phase the game will start in.",
 						default=1)
 
 

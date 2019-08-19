@@ -46,6 +46,39 @@ If this fails, you can find installation instructions [here](https://pip.pypa.io
 pip install sklearn matplotlib flask
 ```
 
+## Visual interface
+
+We provide a visual interface which you can use to familiarize yourself with the game, and to play against your own bots later on.
+
+<div align="center">
+    <img src="visual/static/interface.png" width="65%"</img>
+</div>
+
+\
+The following example starts a local server and sets *rdeep*, an already implemented bot, as the opponent.
+
+```bash
+python visual/server.py --opponent rdeep
+```
+
+The "--opponent" flag is followed by the name of the bot you want to play against.
+
+To see a full list of parameters and their usage, run:
+
+```bash
+python visual/server.py --help
+```
+
+Once your server is up and running, you can fire up your favorite (modern) web browser and visit
+[http://127.0.0.1:5000/](http://127.0.0.1:5000/), the local address where your server is listening.
+
+The controls are fairly straightforward; click on the card that you want to play to place it on
+the table. You can decide to play this move by clicking the "Submit move" button on the top bar, or you can
+change your mind with "Reset move". Whenever you have a complex move available, such as a marriage or
+a trump jack exchange, the corresponding buttons on the top bar will become available. Finally, you can
+use SHIFT + R to start a new game at any time.
+
+
 ### Python knowledge
 
 You will of course also need a working knowledge of python. If you're looking to
@@ -134,7 +167,7 @@ state = State.generate(1)
 # but all attributes are identical.
 same_state = State.generate(1)
 
-diff_state = State.generate(2) 
+diff_state = State.generate(2)
 
 # The equality and inequality operators are overridden for State
 # objects, so you can check if all parameters of two states match.
@@ -207,32 +240,6 @@ too limited.
 Your best bet is to write your own script that does what you want, and have it call the
 engine. Have a look at the function play(...) in  api/engine.py, or have it run a by
 itself. See experiment.py for an example.
-
-## Visual interface
-
-To play Schnapsen via the visual interface, you must first make sure that you have Flask installed. Then you can start a local server. The following example starts a server and sets rdeep as the opponent.
-
-```bash
-python visual/server.py --opponent rdeep
-```
-
-The "--opponent" flag is followed by the name of the bot you want to play against.
-
-To see a full list of parameters and their usage, run:
-
-```bash
-python visual/server.py --help
-```
-
-Once your server is up and running, you can fire up your favorite (modern) web browser and visit
-[http://127.0.0.1:5000/](http://127.0.0.1:5000/), the local address where your server is listening.
-
-The controls are fairly straightforward; click on the card that you want to play to place it on
-the table. You can decide to play this move by clicking the "Submit move" button on the top bar, or you can
-change your mind with "Reset move". Whenever you have a complex move available, such as a marriage or
-a trump jack exchange, the corresponding buttons on the top bar will become available. Finally, you can
-use SHIFT + R to start a new game at any time.
-
 
 ## Changes from last year's challenge
 
