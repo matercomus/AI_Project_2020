@@ -1,4 +1,4 @@
-Intelligent Systems 2019
+Intelligent Systems 2020
 ========================
 This is the practical material for the Intelligent Systems course, based on the
 card based strategy game _Schnapsen_.
@@ -12,10 +12,10 @@ Your job is to make a bot that will play this game.
 
 ## Particularities of our implementation
 
-For this implementation of the game, we mostly followed the rules described in the above link, with a few caveats:
+For this implementation of the game, we followed the rules described in the above link, with a few caveats:
 * Partial information about the state of the deck is updated automatically, so you don't have to keep track of it yourself.
 * In the same vein, it is not the player's responsibility to keep track of their (and their enemy's) points, as it would be in regular Schnapsen. This is done automatically through the game engine, which also removes the aspect of having to declare that you have reached 66 points in order to win the game.
-* "Closing the talon" is not implemented in order to have a clear separation between the imperfect information and the perfect information parts of the game, and also in order to avoid further increasing the branching factor.
+* "Closing the talon" is not implemented in order to have a clear separation between the perfect and imperfect information parts of the game, and also in order to avoid further increasing the branching factor.
 * Scoring is implemented as the rules would suggest. A player can receive 1-3 points for winning a round, depending on the score differential. However, play.py and tournament.py play the game only in terms of these rounds, not in terms of a "full game" described as playing rounds until one player reaches 7 points.
 
 ## Technical requirements
@@ -26,13 +26,13 @@ You require a working Python 3.x environment and a good text editor or an IDE. Y
 * [Linux](https://www.python.org/downloads/source/)
 * [Other](https://www.python.org/download/other/)
 
+For the regular Windows Python installation, be sure to select the _"Add Python 3.x to PATH"_ option in the installation dialogue, so that you can access Python through your command line.
+
 For more advanced Windows users that want to use the Linux bash without a virtual machine or dual-booting, consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Once set up, this lets you use the command line interface of the respective Linux distribution you chose, with access to the Windows File System. For Linux newcomers, we suggest using Ubuntu. You can then install Python3 and pip through the following command, in case they are not pre-installed. For other distributions, use the equivalent package manager.
 
 ```bash
 sudo apt install python3 python3-pip
 ```
-
-For the regular Windows Python installation, be sure to select the _"Add Python 3.x to PATH"_ option in the installation dialogue, so that you can access Python through your command line.
 
 The core game engine runs on pure Python, however you will need to install a few additional packages for tasks throughout the course. This is most easily done through the standard Python package manager, pip. You will most likely already have pip after the Python 3.x installation. You can check by running the following command in your command line interface.
 
@@ -217,7 +217,7 @@ novice programmers. It is also a
 [good principle](https://en.wikipedia.org/wiki/Program_optimization#When_to_optimize)
 in general, at least when you write the first version of your code.
 
-You may feel that your bot is to slow with our State objects, for
+You may feel that your bot is too slow with our State objects, for
 instance if you're creating an evaluating lots of State objects in a deep
 tree. Luckily, you're not tied to our API: simply take the State object
 you're given and copy it to your own, more efficient, implementation. This may
@@ -243,7 +243,7 @@ itself. See experiment.py for an example.
 
 ## Changes from last year's challenge
 
-The codebase has been ported to Python 3. A visual interface has been added, along with minor fixes and improvements. Bots from last year can be used this year as well.
+Bots from last year can be used this year as well.
 
 ## Attributions
 
