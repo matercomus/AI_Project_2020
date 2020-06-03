@@ -260,6 +260,11 @@ function getCardStateArray(backEndState, perspective=false){
     var card_state = (perspective && backEndState.phase == 1) ? backEndState.deck.p1_perspective : backEndState.deck.card_state;
 
     var trick = backEndState.deck.trick;
+    
+    if (backEndState.phase == 2) {
+        $("#trump").show();
+        $("#trump").text("Trump suit: " + properTrumpSuitName(backEndState.deck.trump_suit));
+    }
 
     for(var i=0; i<2; i++){
         if(trick[i] != null){
@@ -267,6 +272,16 @@ function getCardStateArray(backEndState, perspective=false){
         }
     }
     return card_state;
+}
+
+function properTrumpSuitName(suit) {
+    const suits = {
+        c: 'Clubs',
+        d: 'Diamonds',
+        h: 'Heart',
+        s: 'Spades',
+    };
+    return suits[suit.toLowerCase()];
 }
 
 function getMoveTypes(moves){
