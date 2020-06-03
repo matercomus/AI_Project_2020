@@ -90,6 +90,15 @@ body {
 #topbar button:disabled{
   opacity:.2;
 }
+#trump {
+  display: none;
+  position: fixed;
+  top: 50%;
+  right: 100px;
+  color: white;
+  border: 1px solid;
+  padding: 10px;
+}
 .message {
   position: fixed;
   top: 2.5rem;
