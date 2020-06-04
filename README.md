@@ -1,6 +1,7 @@
-Intelligent Systems 2020
-========================
-This is the practical material for the Intelligent Systems course, based on the
+Intelligent Systems 2020 and Project Artificial Intelligence 2020
+=================================================================
+
+This is the practical material for the Intelligent Systems course and the Project AI, based on the
 card based strategy game _Schnapsen_.
 
 ## Getting started
