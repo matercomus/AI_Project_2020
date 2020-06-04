@@ -16,7 +16,7 @@ import sys
 import sklearn
 import sklearn.linear_model
 from sklearn.neural_network import MLPClassifier
-from sklearn.externals import joblib
+import joblib
 
 from bots.rand import rand
 # from bots.rdeep import rdeep

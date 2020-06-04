@@ -8,7 +8,7 @@ from api import State, util
 import random, os
 from itertools import chain
 
-from sklearn.externals import joblib
+import joblib
 
 # Path of the model we will use. If you make a model
 # with a different name, point this line to its path.
