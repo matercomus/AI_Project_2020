@@ -278,7 +278,7 @@ function properTrumpSuitName(suit) {
     const suits = {
         c: 'Clubs',
         d: 'Diamonds',
-        h: 'Heart',
+        h: 'Hearts',
         s: 'Spades',
     };
     return suits[suit.toLowerCase()];
