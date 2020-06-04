@@ -393,8 +393,7 @@ class State:
 
 	def get_trump_suit(self):
 		"""
-		:param player: The player id of the player whose points we want
-		:return: The points of the requested player
+		:return: The trump suit 
 		"""
 		return self.__deck.get_trump_suit()
 
