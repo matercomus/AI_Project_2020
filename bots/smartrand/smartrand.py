@@ -10,7 +10,7 @@ import random
 
 class Bot:
 
-    def __init__(self):
+    def __init__(eck):
         pass
 
     def get_move(self, state):
@@ -32,22 +32,36 @@ class Bot:
 
         # Heuristic 1 - if possible, play a mariage.
         for move in moves:
-            if move[1] != None:
+            if move[1] != None and move[1] != None:
                 if util.get_suit(move[1]) == state.get_trump_suit():
                     return move
                 else:
                     return move
 
-        # Heuristic 2 - if only 1 spouse in hand (and it's partner has not yet been played),
+        # Heuristic 2 - if only 1 spouse in hand (and it's partner has not been played in the previous trick),
         # don't play it and keep it. Unless it's the only card in hand.
-        # TODO: check for partners that were alredy played.
+        # TODO: check for partners that were played in previous trick.
 
         # check if not the only card in hand
+        prev_trick = state.get_prev_trick()
         if len(moves) > 1:
             for move in enumerate(moves):
-                # remove single spouses (Kings and Queens) from moves.
-                if move[1][0] in (2, 7, 12, 17, 3, 8, 13, 18):
+                # remove single spouses (Kings and Queens) from moves if their partners were played in the previous trick.
+                if move[1][0] in (2, 7, 12, 17, 3, 8, 13, 18) and move[1][0] == prev_trick[0] or move[1][0] in (2, 7, 12, 17, 3, 8, 13, 18) and move[1][0] == prev_trick[1]:
+                    print(
+                        'removed move {}, single spouse detected.'.format(move[1]))
                     moves.pop(move[0])
 
+        # TESTS
+        # print('TESTS:')
+
+        # perspective
+        # perspective = state.get_perspective(state.whose_turn())
+        # print(perspective)
+
+        # print('previous trick --> {}'.format(prev_trick))
+        # print(prev_trick[0], prev_trick[1])
+
+        # //TESTS END//
         # Return a random choice
         return random.choice(moves)
