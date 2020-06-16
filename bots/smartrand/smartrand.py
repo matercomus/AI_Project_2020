@@ -1,9 +1,10 @@
 """
-MyBot -- A modified version of rand bot by Matt Kedzia and ...
+SmartRand -- A modified version of rand bot by Matt Kedzia and ...
 """
 
 # Import the API objects
-from api import State, Deck, util
+from api import State, util, Deck
+
 import random
 
 
@@ -28,7 +29,13 @@ class Bot:
 
         # All legal moves
         moves = state.moves()
-
+        print(moves)
+        print(moves[1])
+        b = enumerate(moves)
+        print(b)
+        # -- dont know how this works
+        a = state.get_perspective(2)[1]
+        print(a)
         # Heuristic 1 - if possible, play a mariage.
         for move in moves:
             if move[1] != None:
@@ -37,15 +44,17 @@ class Bot:
                 else:
                     return move
 
-        # Heuristic 2 - When a King or Queen in hand, check wether it's spouse was allredy layed. If yes then play it.
+        # Heuristic 2 - if only 1 spouse in hand and it's partner has not yet been played,
+        # don't play it and keep it. Unless it's the only card in hand.
+        # TODO: check for partners that were alredy played.
 
-        # Heuristic 3 - if only 1 spouse in hand, don't play it and keep it. Unless it's the only card in hand.
         # check if not the only card in hand
         if len(moves) > 1:
-            for move in enumerate(moves):
+            for index, move in enumerate(moves):
                 # remove single spouses (Kings and Queens) from moves.
-                if move[1] in (2, 7, 12, 17, 3, 8, 13, 18):
-                    moves.remove(move[0])
+                if move[1][0] in (2, 7, 12, 17, 3, 8, 13, 18):
+                    print(move[1][0])
+                    moves.remove(index)
 
         # Return a random choice
         return random.choice(moves)
