@@ -47,10 +47,28 @@ class Bot:
         if len(moves) > 1:
             for move in enumerate(moves):
                 # remove single spouses (Kings and Queens) from moves if their partners were played in the previous trick.
-                if move[1][0] in (2, 7, 12, 17, 3, 8, 13, 18) and move[1][0] == prev_trick[0] or move[1][0] in (2, 7, 12, 17, 3, 8, 13, 18) and move[1][0] == prev_trick[1]:
-                    print(
-                        'removed move {}, single spouse detected.'.format(move[1]))
-                    moves.pop(move[0])
+                if move[1][0] in (2, 7, 12, 17):    # test if King
+                    if prev_trick[0] not in (3, 8, 13, 18):
+                        pass  # if card 1 from previous trick is not a queen, pass
+                    if prev_trick[1] not in (3, 8, 13, 18):
+                        pass  # if card 2 from previous trick is not a queen, pass
+                    else:
+                        # spouse detected in previous trick, remove from moves.
+                        moves.pop(move[0])
+                        print(
+                            'removed move {}, single spouse detected.'.format(move[1]))
+                        print('previous trick --> {}'.format(prev_trick))
+                elif move[1][0] in (3, 8, 13, 18):  # test if queen
+                    if prev_trick[0] not in (2, 7, 12, 17):
+                        pass  # if card 1 from previous trick is not a king, pass
+                    if prev_trick[1] not in (2, 7, 12, 17):
+                        pass  # if card 2 from previous trick is not a king, pass
+                    else:
+                        # spouse detected in previous trick, remove from moves.
+                        moves.pop(move[0])
+                        print(
+                            'removed move {}, single spouse detected.'.format(move[1]))
+                        print('previous trick --> {}'.format(prev_trick))
 
         # TESTS
         # print('TESTS:')
