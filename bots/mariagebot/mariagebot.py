@@ -32,7 +32,8 @@ class Bot:
 
         # Heuristic 1 - if possible, play a mariage.
         for move in moves:
-            if move[1] != None and move[1] != None:
+            if move[0] != None and move[1] != None:
+                print('forcing a mariage {}'.format(move))
                 if util.get_suit(move[1]) == state.get_trump_suit():
                     return move
                 else:
@@ -40,7 +41,6 @@ class Bot:
 
         # Heuristic 2 - if only 1 spouse in hand (and it's partner has not been played in the previous trick),
         # don't play it and keep it. Unless it's the only card in hand.
-        # TODO: check for partners that were played in previous trick.
 
         # check if not the only card in hand
         prev_trick = state.get_prev_trick()
@@ -55,9 +55,10 @@ class Bot:
                     else:
                         # spouse detected in previous trick, remove from moves.
                         moves.pop(move[0])
+                        print('previous trick --> {}'.format(prev_trick))
                         print(
                             'removed move {}, single spouse detected.'.format(move[1]))
-                        print('previous trick --> {}'.format(prev_trick))
+
                 elif move[1][0] in (3, 8, 13, 18):  # test if queen
                     if prev_trick[0] not in (2, 7, 12, 17):
                         pass  # if card 1 from previous trick is not a king, pass
@@ -66,9 +67,9 @@ class Bot:
                     else:
                         # spouse detected in previous trick, remove from moves.
                         moves.pop(move[0])
+                        print('previous trick --> {}'.format(prev_trick))
                         print(
                             'removed move {}, single spouse detected.'.format(move[1]))
-                        print('previous trick --> {}'.format(prev_trick))
 
         # TESTS
         # print('TESTS:')
