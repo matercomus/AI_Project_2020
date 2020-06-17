@@ -71,16 +71,5 @@ class Bot:
                         print(
                             'removed move {}, single spouse detected.'.format(move[1]))
 
-        # TESTS
-        # print('TESTS:')
-
-        # perspective
-        # perspective = state.get_perspective(state.whose_turn())
-        # print(perspective)
-
-        # print('previous trick --> {}'.format(prev_trick))
-        # print(prev_trick[0], prev_trick[1])
-        # piessss testetstes
-        # //TESTS END//
         # Return a random choice
         return random.choice(moves)
