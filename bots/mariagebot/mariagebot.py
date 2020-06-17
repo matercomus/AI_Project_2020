@@ -80,7 +80,7 @@ class Bot:
 
         # print('previous trick --> {}'.format(prev_trick))
         # print(prev_trick[0], prev_trick[1])
-        # piessss
+        # piessss testetstes
         # //TESTS END//
         # Return a random choice
         return random.choice(moves)
