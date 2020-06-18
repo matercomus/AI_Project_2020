@@ -4,7 +4,7 @@ uniformly at random.
 """
 
 # Import the API objects
-from api import State, Deck
+from api import State, Deck, util
 
 
 class Bot:
@@ -31,11 +31,35 @@ class Bot:
 
         moves_trump_suit = []
 
-        print(enumerate(moves))
+        # Heuristic 1 - If we have the trump jack in our hand, pick the trump jack exchange
+        # (this makes our lowest trump card not a jack and therfore higher rank)
+        for move in moves:
+            if move[0] == None and move[1] != None:
+                if move[1] in (4, 9, 14, 19):
+                    print('forcing trump jack exchange')
+                    return move
+
+        # Heuristic 2 - if possible, play a mariage.
+        for move in moves:
+            if move[0] != None and move[1] != None:
+                print('forcing a mariage {}'.format(move))
+                if util.get_suit(move[1]) == state.get_trump_suit():
+                    return move
+                else:
+                    return move
+
+        # # Heuristic 3 -
+        # opponents_card = state.get_opponents_played_card()
+        # if opponents_card is not None:
+        #     # test if opponents card is a trump suit ace
+        #     if opponents_card[0] % 5 == 0 and Deck.get_suit(opponents_card[0]) == state.get_trump_suit():
+        #         print('opponent played a trump suit ace')
+        #         for index, move in enumerate(moves):
+        #             if move[0] is not None and move[0] % 5 >= chosen_move[0] % 5:
+        #                 chosen_move = move
 
         # Get all trump suit moves available
         for index, move in enumerate(moves):
-
             if move[0] is not None and Deck.get_suit(move[0]) == state.get_trump_suit():
                 moves_trump_suit.append(move)
 
