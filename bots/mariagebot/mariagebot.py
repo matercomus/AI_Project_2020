@@ -33,7 +33,7 @@ class Bot:
         # Heuristic 1 - if possible, play a mariage.
         for move in moves:
             if move[0] != None and move[1] != None:
-                print('forcing a mariage {}'.format(move))
+                # print('forcing a mariage {}'.format(move))
                 if util.get_suit(move[1]) == state.get_trump_suit():
                     return move
                 else:
@@ -55,9 +55,9 @@ class Bot:
                     else:
                         # spouse detected in previous trick, remove from moves.
                         moves.pop(move[0])
-                        print('previous trick --> {}'.format(prev_trick))
-                        print(
-                            'removed move {}, single spouse detected.'.format(move[1]))
+                        # print('previous trick --> {}'.format(prev_trick))
+                        # print(
+                        #     'removed move {}, single spouse detected.'.format(move[1]))
 
                 elif move[1][0] in (3, 8, 13, 18):  # test if queen
                     if prev_trick[0] not in (2, 7, 12, 17):
@@ -67,9 +67,9 @@ class Bot:
                     else:
                         # spouse detected in previous trick, remove from moves.
                         moves.pop(move[0])
-                        print('previous trick --> {}'.format(prev_trick))
-                        print(
-                            'removed move {}, single spouse detected.'.format(move[1]))
+                        # print('previous trick --> {}'.format(prev_trick))
+                        # print(
+                        #     'removed move {}, single spouse detected.'.format(move[1]))
 
         # Return a random choice
         return random.choice(moves)

@@ -36,27 +36,35 @@ class Bot:
         for move in moves:
             if move[0] == None and move[1] != None:
                 if move[1] in (4, 9, 14, 19):
-                    print('forcing trump jack exchange')
+                    # print('forcing trump jack exchange')
                     return move
 
         # Heuristic 2 - if possible, play a mariage.
         for move in moves:
             if move[0] != None and move[1] != None:
-                print('forcing a mariage {}'.format(move))
+                # print('forcing a mariage {}'.format(move))
                 if util.get_suit(move[1]) == state.get_trump_suit():
                     return move
                 else:
                     return move
 
-        # # Heuristic 3 -
-        # opponents_card = state.get_opponents_played_card()
-        # if opponents_card is not None:
-        #     # test if opponents card is a trump suit ace
-        #     if opponents_card[0] % 5 == 0 and Deck.get_suit(opponents_card[0]) == state.get_trump_suit():
-        #         print('opponent played a trump suit ace')
-        #         for index, move in enumerate(moves):
-        #             if move[0] is not None and move[0] % 5 >= chosen_move[0] % 5:
-        #                 chosen_move = move
+        # Heuristic 3 - If the opponent plays ace (highest) trump card
+        # We play the lowest ranking card in hand (so opponent receives minimum points)
+
+        opponents_card = state.get_opponents_played_card()
+        if opponents_card is not None:
+            # test if opponents card is a trump suit ace
+            if opponents_card % 5 == 0 and Deck.get_suit(opponents_card) == state.get_trump_suit():
+                # print('opponent played a trump suit ace - {}'.format(opponents_card))
+                # print('test - the trump suit is: {}'.format(state.get_trump_suit()))
+                for index, move in enumerate(moves):
+                    if move[0] is not None and move[0] % 5 > chosen_move[0] % 5:
+                        # print('move {} is worth less then {}'.format(
+                        #     move, chosen_move))
+                        # print('playing move {}'.format(move))
+                        chosen_move = move
+
+                return chosen_move
 
         # Get all trump suit moves available
         for index, move in enumerate(moves):
