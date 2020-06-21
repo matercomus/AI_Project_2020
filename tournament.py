@@ -8,7 +8,11 @@ python play.py -h
 
 from argparse import ArgumentParser
 from api import State, util, engine
-import random, time
+import random
+import time
+import pandas as pd
+import matplotlib.pyplot as plt
+
 
 def run_tournament(options):
 
@@ -24,7 +28,8 @@ def run_tournament(options):
 
     totalgames = (n*n - n)/2 * options.repeats
     playedgames = 0
-
+    score_list_p1 = []
+    score_list_p2 = []
     print('Playing {} games:'.format(int(totalgames)))
     for a, b in matches:
         for r in range(options.repeats):
@@ -37,23 +42,54 @@ def run_tournament(options):
             # Generate a state with a random seed
             state = State.generate(phase=int(options.phase))
 
-            winner, score = engine.play(bots[p[0]], bots[p[1]], state, options.max_time*1000, verbose=False, fast=options.fast)
+            winner, score = engine.play(
+                bots[p[0]], bots[p[1]], state, options.max_time*1000, verbose=False, fast=options.fast)
 
             if winner is not None:
                 winner = p[winner - 1]
                 wins[winner] += score
 
             playedgames += 1
-            print('Played {} out of {:.0f} games ({:.0f}%): {} \r'.format(playedgames, totalgames, playedgames/float(totalgames) * 100, wins))
+
+            for index, value in enumerate(wins):
+                if index % 2 != 0:
+                    score_list_p2.append(value)
+                else:
+                    score_list_p1.append(value)
+
+            print('Played {} out of {:.0f} games ({:.0f}%): {} \r'.format(
+                playedgames, totalgames, playedgames/float(totalgames) * 100, wins))
 
     print('Results:')
     for i in range(len(bots)):
         print('    bot {}: {} points'.format(bots[i], wins[i]))
 
+    # print('p1: {}'.format(score_list_p1))
+    # print('p2: {}'.format(score_list_p2))
+    score_list_p1_p2 = list(zip(score_list_p1, score_list_p2))
+    # print(score_list_p1_p2)
+
+    scores_data = pd.DataFrame(score_list_p1_p2, columns=[
+        'Player 1 score', 'Player 2 score'])
+
+    print(scores_data)
+
+    plt.title('Tournament score of both bots')
+
+    plt.plot(scores_data.index,
+             scores_data['Player 1 score'], marker='.', label=botnames[0])
+    plt.plot(scores_data.index,
+             scores_data['Player 2 score'], marker='.', label=botnames[1])
+
+    plt.xlabel('Game #')
+    plt.ylabel('Score')
+    plt.legend()
+    plt.show()
+
 
 if __name__ == "__main__":
 
-    ## Parse the command line options
+    # Parse the command line options
     parser = ArgumentParser()
 
     parser.add_argument("-s", "--starting-phase",
