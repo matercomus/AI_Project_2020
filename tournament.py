@@ -91,7 +91,7 @@ def run_tournament(options):
     plt.xlabel('Game #')
     plt.ylabel('Score')
     plt.legend()
-    # plt.savefig('{}_vs_{}'.format(botnames[0], botnames[1]))
+    plt.savefig('plot')
     plt.show()
 
 
