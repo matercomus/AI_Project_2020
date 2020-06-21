@@ -12,6 +12,7 @@ import random
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import ttest_ind
 
 
 def run_tournament(options):
@@ -72,10 +73,16 @@ def run_tournament(options):
     scores_data = pd.DataFrame(score_list_p1_p2, columns=[
         'Player 1 score', 'Player 2 score'])
 
-    print(scores_data)
+    # Calculate the T-test for the means of two independent samples of scores.
+    ttest_result = ttest_ind(scores_data['Player 1 score'],
+                             scores_data['Player 2 score'])
 
-    plt.title('Tournament score of both bots')
+    print(ttest_result)
 
+    # print(scores_data)
+
+    plt.title(
+        'Tournament score of both bots')
     plt.plot(scores_data.index,
              scores_data['Player 1 score'], marker='.', label=botnames[0])
     plt.plot(scores_data.index,
@@ -84,6 +91,7 @@ def run_tournament(options):
     plt.xlabel('Game #')
     plt.ylabel('Score')
     plt.legend()
+    # plt.savefig('{}_vs_{}'.format(botnames[0], botnames[1]))
     plt.show()
 
 
