@@ -67,8 +67,22 @@ def run_tournament(options):
 
     # print('p1: {}'.format(score_list_p1))
     # print('p2: {}'.format(score_list_p2))
-    score_list_p1_p2 = list(zip(score_list_p1, score_list_p2))
-    # print(score_list_p1_p2)
+
+    scores_p1_no_cumul = [score_list_p1[i + 1] - score_list_p1[i]
+                          for i in range(len(score_list_p1)-1)]
+
+    scores_p2_no_cumul = [score_list_p2[i + 1] - score_list_p2[i]
+                          for i in range(len(score_list_p2)-1)]
+
+    # if true, plot will show cumulative score.
+    cumulative_plot = True
+
+    if cumulative_plot is False:
+        score_list_p1_p2 = list(zip(scores_p1_no_cumul, scores_p2_no_cumul))
+        # print(score_list_p1_p2)
+    else:
+        score_list_p1_p2 = list(zip(score_list_p1, score_list_p2))
+        # print(score_list_p1_p2)
 
     scores_data = pd.DataFrame(score_list_p1_p2, columns=[
         'Player 1 score', 'Player 2 score'])
@@ -79,7 +93,7 @@ def run_tournament(options):
 
     print(ttest_result)
 
-    # print(scores_data)
+    print(scores_data)
 
     plt.title(
         'Tournament score of both bots')
@@ -91,7 +105,7 @@ def run_tournament(options):
     plt.xlabel('Game #')
     plt.ylabel('Score')
     plt.legend()
-    plt.savefig('plot')
+    # plt.savefig('plot')
     plt.show()
 
 
